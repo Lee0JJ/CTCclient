@@ -1,50 +1,110 @@
-import React, { useContext, createContext } from 'react';
+import React, { useContext, useState, createContext } from 'react';
 
 import { useAddress, useContract, useMetamask, useContractWrite } from '@thirdweb-dev/react';
 import { ethers } from 'ethers';
 import { EditionMetadataWithOwnerOutputSchema } from '@thirdweb-dev/sdk';
 
+//IPFS URL
+import { useStorageUpload } from '@thirdweb-dev/react';
+
 const StateContext = createContext();
 
+function convertDatetimeToUint256(inputValue) {
+  // Parse the date and time string into a JavaScript Date object
+  const datetime = new Date(inputValue);
+
+  // Convert the Date object to a Unix timestamp (seconds since January 1, 1970)
+  const timestampInSeconds = Math.floor(datetime.getTime() / 1000);
+
+  // Convert the Unix timestamp to a BigNumber (assuming you're using ethers.js)
+  const uint256Timestamp = ethers.BigNumber.from(timestampInSeconds.toString());
+
+  return uint256Timestamp;
+}
+
 export const StateContextProvider = ({ children }) => {
-  const { contract } = useContract('0x66BD8591DaeB7B48b6016CB9Ac2Bdea11905eBbE');
+  const { contract } = useContract('0xCF660b01FD689Df5C6Dc3b1abeb7603f0aF6C91B');
   const { mutateAsync: createConcert, isLoading } = useContractWrite(contract, "createConcert")
 
   const address = useAddress();
   const connect = useMetamask();
 
-  
+  //IPFS URL === START
+  const [file, setFile] = useState('');
+  const [uploadUrls, setUploadUrls] = useState('');
+  const { mutateAsync: upload } = useStorageUpload();
+  const [imageUrls, setImageUrls] = useState([]); // New state for image URLs
+
+  const uploadToIpfs = async (file) => {
+    const uploadUrl = await upload({
+      data: [file],
+      options: {
+        uploadWithGatewayUrl: true,
+        uploadWithoutDirectory: true
+      }
+    });
+    return uploadUrl;
+  };
+  //IPFS URL === END
+
   const publishCampaign = async (form) => {
     try {
-      const data = await createCampaign({
+      const numConcert = await contract.call('getNumConcerts');
+
+      // Format zoneInfo as a 2D array of uint256
+      const zoneInfo = form.zoneInfo.map(row => [
+        ethers.BigNumber.from(row.price),
+        ethers.BigNumber.from(row.seatAmount)
+      ]);
+
+      console.log('form.numConcert:', numConcert.toNumber());
+      console.log('form.name:', form.name);
+      console.log('form.date:', convertDatetimeToUint256(form.date));
+      console.log('form.venue:', form.venue);
+      console.log('form.numZone:', ethers.BigNumber.from(form.numZone));
+      console.log('form.zoneInfo:', zoneInfo);
+      console.log('form.image:', await uploadToIpfs(form.image));
+
+
+      const data = await createConcert({
         args: [
-          address, // owner
-          form.title, // title
-          form.description, // description
-          form.target,
-          new Date(form.deadline).getTime(), // deadline,
-          form.image,
+          numConcert.add(ethers.BigNumber.from(1)),
+          form.name,
+          convertDatetimeToUint256(form.date),
+          form.venue,
+          ethers.BigNumber.from(form.numZone),
+          zoneInfo,
+          await uploadToIpfs(form.image)
         ],
       });
-
+      
       console.log("contract call success", data)
     } catch (error) {
       console.log("contract call failure", error)
     }
   }
 
-  //Parameter "form" is from create page where user submit from of creation
-  const publishConcert = async (form) => {
-    try {
-      const data = await createConcert({ args: [gmail, concertId, name, date, venue, numZones, zonePrice, zoneAvailableSeat, imageUrl] });
-      console.info("contract call successs", data);
-    } catch (err) {
-      console.error("contract call failure", err);
-    }
+
+  const getCampaigns = async () => {
+    const campaigns = await contract.call('getConcerts');
+    console.log(campaigns);
+    const parsedCampaigns = campaigns.map((campaign, i) => ({
+      cId: campaign.concertId.toNumber(),
+      owner: campaign.owner,
+      name: campaign.name,
+      venue: campaign.venue, // Convert to string
+      numZones: campaign.numZones.toNumber(),
+      zoneInfo: campaign.zoneInfo,
+      date: campaign.date.toNumber(),
+      image: campaign.imageUrl,
+      pId: i
+    }));
+  
+    return parsedCampaigns;
   }
   
 
-  const getCampaigns = async () => {
+  const getCampaigns2 = async () => {
     const campaigns = await contract.call('getCampaigns');
 
     const parsedCampaings = campaigns.map((campaign, i) => ({

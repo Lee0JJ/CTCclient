@@ -1,5 +1,7 @@
+import { BigNumber, utils, ethers } from 'ethers';
+
 export const daysLeft = (deadline) => {
-  const difference = new Date(deadline).getTime() - Date.now();
+  const difference = new Date(deadline * 1000) - Date.now();
   const remainingDays = difference / (1000 * 3600 * 24);
 
   return remainingDays.toFixed(0);
@@ -20,3 +22,28 @@ export const checkIfImage = (url, callback) => {
   img.onload = () => callback(true);
   img.onerror = () => callback(false);
 };
+
+export const calTotalAvailableTickets = (zoneInfo) => {
+  let totalAvailableTickets = 0;
+
+  for (let i = 0; i < zoneInfo.length; i++) {
+    if (zoneInfo[i] && zoneInfo[i][1]) {
+      totalAvailableTickets += parseInt(ethers.BigNumber.from(zoneInfo[i][1]));
+    }
+  }
+
+  return totalAvailableTickets;
+};
+
+export const calLowestTicketPrice = (zoneInfo) => {
+  let lowestPrice = null;
+  for (let i = 0; i < zoneInfo.length; i++) {
+    const price = parseInt(ethers.BigNumber.from(zoneInfo[i][0]));
+    if (lowestPrice === null || (price < lowestPrice 
+      &&  parseInt(ethers.BigNumber.from(zoneInfo[i][1] > 0) ))) {
+      lowestPrice = price;
+    }
+  }
+  return lowestPrice + " ETH";
+};
+
