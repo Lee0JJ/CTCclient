@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react'
 
 import { DisplayCampaigns } from '../components';
 import { useStateContext } from '../context'
+//import { SignUp } from '../pages/sign-up';
+
+
+//SIGN UP
+// @notus-pro/react
+//import ContactUs1 from "@notus-pro/react/ContactUs1"
 
 const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -17,16 +23,24 @@ const Profile = () => {
   }
 
   useEffect(() => {
-    if(contract) fetchCampaigns();
+    if (contract) fetchCampaigns();
   }, [address, contract]);
 
+  //SIGN UP = START
+
+  //SIGN UP = END
+
   return (
+    //<SignUp />
     <DisplayCampaigns 
-      title="All Campaigns"
+      title="Your Campaigns"
       isLoading={isLoading}
       campaigns={campaigns}
     />
   )
 }
+
+
+
 
 export default Profile

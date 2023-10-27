@@ -7,27 +7,6 @@ import { daysLeft, calTotalAvailableTickets, calLowestTicketPrice } from '../uti
 const FundCard = ({ cId, owner, name, venue, numZones, zoneInfo, date, image, handleClick }) => {
   const remainingDays = daysLeft(date);
 
-  function calculateTotalAvailableTickets(zoneInfo) {
-    let totalAvailableTickets = 0;
-    for (let i = 0; i < zoneInfo.length; i++) {
-      if (zoneInfo[i] && zoneInfo[i][0]) {
-        totalAvailableTickets += zoneInfo[i][1].toNumber();
-      }
-    }
-    return totalAvailableTickets;
-  }
-
-  function calculateLowestTicketPrice(zoneInfo) {
-    let lowestPrice = null;
-    for (let i = 0; i < zoneInfo.length; i++) {
-      const price = zoneInfo[i][0].toNumber();
-      if (lowestPrice === null || price < lowestPrice) {
-        lowestPrice = price;
-      }
-    }
-    return lowestPrice;
-  }
-
   return (
     <div className="sm:w-[288px] w-full rounded-[15px] bg-[#1c1c24] cursor-pointer" onClick={handleClick}>
       <img src={image} alt="fund" className="w-full h-[158px] object-cover rounded-[15px]" />
@@ -45,7 +24,7 @@ const FundCard = ({ cId, owner, name, venue, numZones, zoneInfo, date, image, ha
 
         <div className="flex justify-between flex-wrap mt-[15px] gap-2">
           <div className="flex flex-col">
-            <h4 className="font-epilogue font-semibold text-[14px] text-[#b2b3bd] leading-[22px]">Staring from {calLowestTicketPrice(zoneInfo)} ETH </h4>
+            <h4 className="font-epilogue font-semibold text-[14px] text-[#b2b3bd] leading-[22px]">Starting from {calLowestTicketPrice(zoneInfo)}</h4>
             <p className="mt-[3px] font-epilogue font-normal text-[12px] leading-[18px] text-[#808191] sm:max-w-[120px] truncate">{calTotalAvailableTickets(zoneInfo)} ticket left</p>
           </div>
           <div className="flex flex-col">

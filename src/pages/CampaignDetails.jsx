@@ -94,7 +94,7 @@ const CampaignDetails = () => {
           </div>
 
           <div>
-            <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">Donators</h4>
+            <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">Purchase History</h4>
 
             <div className="mt-[20px] flex flex-col gap-4">
               {donators.length > 0 ? donators.map((item, index) => (
@@ -103,27 +103,28 @@ const CampaignDetails = () => {
                   <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] break-ll">{item.donation}</p>
                 </div>
               )) : (
-                <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] text-justify">No donators yet. Be the first one!</p>
+                <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] text-justify">No purchase yet. Be the first one!</p>
               )}
             </div>
           </div>
         </div>
 
         <div className="flex-1">
-          <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">Fund</h4>
+          <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">ZONE</h4>
 
           {/* ZONE SELECTION */}
           <div>
-            <div className="flex space-x-2">
+            <div className="flex space-x-1">
               {state.zoneInfo.map((zone, index) => (
                 <button
                   type='button'
                   key={index}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full m-2"
+                  className="bg-blue-500 hover:bg-blue-700 w-max text-white font-bold py-2 px-4 rounded-full m-2"
                   onClick={() => handleZoneSelection(index)}
                   disabled={selectedZone !== null}
                 >
-                  Price: {parseInt(ethers.BigNumber.from(zone[0]))}, Available Seats: {parseInt(ethers.BigNumber.from(zone[1]))}
+                  Price: {parseInt(ethers.BigNumber.from(zone[0]))}<br/> 
+                  Available Seats: {parseInt(ethers.BigNumber.from(zone[1]))}
                 </button>
               ))}
             </div>

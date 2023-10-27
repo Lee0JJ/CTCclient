@@ -1,6 +1,6 @@
 import React, { useContext, useState, createContext } from 'react';
 
-import { useAddress, useContract, useMetamask, useContractWrite } from '@thirdweb-dev/react';
+import { useAddress, useContract, useMetamask, useContractWrite, useContractRead } from '@thirdweb-dev/react';
 import { ethers } from 'ethers';
 import { EditionMetadataWithOwnerOutputSchema } from '@thirdweb-dev/sdk';
 
@@ -25,6 +25,7 @@ function convertDatetimeToUint256(inputValue) {
 export const StateContextProvider = ({ children }) => {
   const { contract } = useContract('0xCF660b01FD689Df5C6Dc3b1abeb7603f0aF6C91B');
   const { mutateAsync: createConcert, isLoading } = useContractWrite(contract, "createConcert")
+  const { mutateAsync: registerAsOrganizer, isLoading2 } = useContractWrite(contract, "registerAsOrganizer")
 
   const address = useAddress();
   const connect = useMetamask();
@@ -77,7 +78,7 @@ export const StateContextProvider = ({ children }) => {
           await uploadToIpfs(form.image)
         ],
       });
-      
+
       console.log("contract call success", data)
     } catch (error) {
       console.log("contract call failure", error)
@@ -99,10 +100,10 @@ export const StateContextProvider = ({ children }) => {
       image: campaign.imageUrl,
       pId: i
     }));
-  
+
     return parsedCampaigns;
   }
-  
+
 
   const getCampaigns2 = async () => {
     const campaigns = await contract.call('getCampaigns');
@@ -151,6 +152,44 @@ export const StateContextProvider = ({ children }) => {
     return parsedDonations;
   }
 
+  const applyOrganizer = async (form) => {
+    try {
+      const { numOrg, isLoading } = useContractRead(contract, "numOrganizers", []);
+
+      console.log('form.numOrg:', numOrg.toNumber());
+      console.log('form.name:', form.name);
+      console.log('form.image:', await uploadToIpfs(form.image));
+
+
+      const data = await registerAsOrganizer({
+        args: [
+          form.name,
+          await uploadToIpfs(form.image)
+        ],
+      });
+
+      console.log("contract call success", data)
+    } catch (error) {
+      console.log("contract call failure", error)
+    }
+  }
+
+  const getOrganizer = async (onlyVerified, includeArchived) => {
+    const { data, isLoading } = useContractRead(contract, "viewAllOrganizers", [onlyVerified, includeArchived])
+
+    const parsedOrganizer = data.map((organizer, i) => ({
+      oId: organizer.concertId.toNumber(),
+      account: organizer.account,
+      name: organizer.name,
+      document: organizer.documentUrl,
+      onlyVerified: organizer.onlyVerified,
+      includeArchived: organizer.includeArchived,
+      pId: i
+    }));
+
+    return parsedCampaigns;
+  }
+
 
   return (
     <StateContext.Provider
@@ -162,7 +201,9 @@ export const StateContextProvider = ({ children }) => {
         getCampaigns,
         getUserCampaigns,
         donate,
-        getDonations
+        getDonations,
+        applyOrganizer,
+        getOrganizer
       }}
     >
       {children}
