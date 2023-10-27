@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react'
 
-import { DisplayCampaigns } from '../components';
+import { DisplayCampaigns, Loader } from '../components';
 import { useStateContext } from '../context'
-//import { SignUp } from '../pages/sign-up';
+import { SignUp } from '../pages/sign-up';
 
-
-//SIGN UP
-// @notus-pro/react
-//import ContactUs1 from "@notus-pro/react/ContactUs1"
 
 const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [campaigns, setCampaigns] = useState([]);
+  //User Status
+  const [userStatus, setUserStatus] = useState(null); 
 
   const { address, contract, getUserCampaigns } = useStateContext();
 
@@ -26,17 +24,14 @@ const Profile = () => {
     if (contract) fetchCampaigns();
   }, [address, contract]);
 
-  //SIGN UP = START
-
-  //SIGN UP = END
-
   return (
-    //<SignUp />
-    <DisplayCampaigns 
-      title="Your Campaigns"
-      isLoading={isLoading}
-      campaigns={campaigns}
-    />
+    
+    <SignUp />
+    // <DisplayCampaigns 
+    //   title="Your Campaigns"
+    //   isLoading={isLoading}
+    //   campaigns={campaigns}
+    // />
   )
 }
 

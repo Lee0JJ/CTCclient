@@ -154,7 +154,7 @@ export const StateContextProvider = ({ children }) => {
 
   const applyOrganizer = async (form) => {
     try {
-      const { numOrg, isLoading } = useContractRead(contract, "numOrganizers", []);
+      const numOrg = await contract.call('numOrganizers');
 
       console.log('form.numOrg:', numOrg.toNumber());
       console.log('form.name:', form.name);
@@ -175,8 +175,9 @@ export const StateContextProvider = ({ children }) => {
   }
 
   const getOrganizer = async (onlyVerified, includeArchived) => {
-    const { data, isLoading } = useContractRead(contract, "viewAllOrganizers", [onlyVerified, includeArchived])
-
+    //const { data, isLoading } = useContractRead(contract, "viewAllOrganizers", [onlyVerified, includeArchived])
+    const data = await contract.call('viewAllOrganizers', [onlyVerified, includeArchived]);
+    console.log("Org Data :",data);
     const parsedOrganizer = data.map((organizer, i) => ({
       oId: organizer.concertId.toNumber(),
       account: organizer.account,

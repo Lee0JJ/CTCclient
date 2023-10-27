@@ -56,7 +56,7 @@ const CreateCampaign = () => {
 
     uploadToIpfs();
 
-    setIsLoading(true)
+    setIsLoading(true);
     await createCampaign({ ...form, target: ethers.utils.parseUnits(form.target, 18) })
     setIsLoading(false);
 

@@ -9,6 +9,7 @@
     "deploy": "yarn build && npx thirdweb@latest upload dist"
   },
   "dependencies": {
+    "@material-tailwind/react": "^2.1.4",
     "@thirdweb-dev/react": "^3.14.35",
     "@thirdweb-dev/sdk": "^3.10.54",
     "client": "file:",
