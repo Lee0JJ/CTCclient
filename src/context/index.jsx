@@ -179,16 +179,16 @@ export const StateContextProvider = ({ children }) => {
     const data = await contract.call('viewAllOrganizers', [onlyVerified, includeArchived]);
     console.log("Org Data :",data);
     const parsedOrganizer = data.map((organizer, i) => ({
-      oId: organizer.concertId.toNumber(),
+      oId: organizer.organizerId.toNumber(),
       account: organizer.account,
       name: organizer.name,
-      document: organizer.documentUrl,
-      onlyVerified: organizer.onlyVerified,
-      includeArchived: organizer.includeArchived,
+      documentUrl: organizer.documentUrl,
+      isVerified: organizer.isVerified,
+      isArchived: organizer.isArchived,
       pId: i
     }));
 
-    return parsedCampaigns;
+    return parsedOrganizer;
   }
 
 

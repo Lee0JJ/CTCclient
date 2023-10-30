@@ -108,8 +108,8 @@ export function SignUp() {
               </Button> */}
               <CustomButton
                 btnType="submit"
-                title="Submit new campaign"
-                styles="bg-[#1dc071]"
+                title="Sign Up"
+                styles="bg-[#1dc071] w-full"
                 className="center"
               />
             </CardFooter>
