@@ -23,9 +23,9 @@ function convertDatetimeToUint256(inputValue) {
 }
 
 export const StateContextProvider = ({ children }) => {
-  const { contract } = useContract('0xCF660b01FD689Df5C6Dc3b1abeb7603f0aF6C91B');
+  const { contract } = useContract('0x31C0B8FCbceA9858D7b20871064167828f637B24');
   const { mutateAsync: createConcert, isLoading } = useContractWrite(contract, "createConcert")
-  const { mutateAsync: registerAsOrganizer, isLoading2 } = useContractWrite(contract, "registerAsOrganizer")
+  const { mutateAsync: createOrganizer, isLoading2 } = useContractWrite(contract, "registerAsOrganizer")
 
   const address = useAddress();
   const connect = useMetamask();
@@ -50,7 +50,8 @@ export const StateContextProvider = ({ children }) => {
 
   const publishCampaign = async (form) => {
     try {
-      const numConcert = await contract.call('getNumConcerts');
+      console.log('form:', form);
+      const numConcert = await contract.call('numConcerts');
 
       // Format zoneInfo as a 2D array of uint256
       const zoneInfo = form.zoneInfo.map(row => [
@@ -58,13 +59,14 @@ export const StateContextProvider = ({ children }) => {
         ethers.BigNumber.from(row.seatAmount)
       ]);
 
-      console.log('form.numConcert:', numConcert.toNumber());
-      console.log('form.name:', form.name);
-      console.log('form.date:', convertDatetimeToUint256(form.date));
-      console.log('form.venue:', form.venue);
-      console.log('form.numZone:', ethers.BigNumber.from(form.numZone));
-      console.log('form.zoneInfo:', zoneInfo);
-      console.log('form.image:', await uploadToIpfs(form.image));
+      // console.log('form.numConcert:', numConcert.toNumber());
+      // console.log('form.name:', form.name);
+      // console.log('form.date:', convertDatetimeToUint256(form.date));
+      // console.log('form.venue:', form.venue);
+      // console.log('form.numZone:', ethers.BigNumber.from(form.numZone));
+      // console.log('form.zoneInfo:', zoneInfo);
+      // console.log('form.image:', form.image);
+      // console.log('form.imageURL', await uploadToIpfs(form.image));
 
 
       const data = await createConcert({
@@ -79,7 +81,44 @@ export const StateContextProvider = ({ children }) => {
         ],
       });
 
-      console.log("contract call success", data)
+      //console.log("contract call success", data)
+    } catch (error) {
+      console.log("contract call failure", error)
+    }
+  }
+
+  const updateCampaign = async (form) => {
+    try {
+      console.log('form:', form);
+      // Format zoneInfo as a 2D array of uint256
+      const zoneInfo = form.zoneInfo.map(row => [
+        ethers.BigNumber.from(row.price),
+        ethers.BigNumber.from(row.seatAmount)
+      ]);
+
+      // console.log('form.concertId:', numConcert.toNumber());
+      // console.log('form.name:', form.name);
+      // console.log('form.date:', convertDatetimeToUint256(form.date));
+      // console.log('form.venue:', form.venue);
+      // console.log('form.numZone:', ethers.BigNumber.from(form.numZone));
+      // console.log('form.zoneInfo:', zoneInfo);
+      // console.log('form.image:', form.image);
+      // console.log('form.imageURL', await uploadToIpfs(form.image));
+
+
+      const data = await createConcert({
+        args: [
+          ethers.BigNumber.from(form.concertId),
+          form.name,
+          convertDatetimeToUint256(form.date),
+          form.venue,
+          ethers.BigNumber.from(form.numZone),
+          zoneInfo,
+          await uploadToIpfs(form.image)
+        ],
+      });
+
+      //console.log("contract call success", data)
     } catch (error) {
       console.log("contract call failure", error)
     }
@@ -88,18 +127,25 @@ export const StateContextProvider = ({ children }) => {
 
   const getCampaigns = async () => {
     const campaigns = await contract.call('getConcerts');
-    console.log(campaigns);
-    const parsedCampaigns = campaigns.map((campaign, i) => ({
-      cId: campaign.concertId.toNumber(),
-      owner: campaign.owner,
-      name: campaign.name,
-      venue: campaign.venue, // Convert to string
-      numZones: campaign.numZones.toNumber(),
-      zoneInfo: campaign.zoneInfo,
-      date: campaign.date.toNumber(),
-      image: campaign.imageUrl,
-      pId: i
-    }));
+    //console.log(campaigns);
+    const parsedCampaigns = campaigns.map((campaign, i) => {
+      const zoneInfo = campaign.zoneInfo.map(row => ({
+        price: row[0].toNumber(),
+        seatAmount: row[1].toNumber()
+      }));
+      return {
+        cId: campaign.concertId.toNumber(),
+        owner: campaign.owner,
+        name: campaign.name,
+        venue: campaign.venue, // Convert to string
+        numZones: campaign.numZones.toNumber(),
+        zoneInfo: zoneInfo,
+        date: campaign.date.toNumber(),
+        image: campaign.imageUrl,
+        pId: i
+      };
+    });
+    console.log(parsedCampaigns);
 
     return parsedCampaigns;
   }
@@ -156,15 +202,15 @@ export const StateContextProvider = ({ children }) => {
     try {
       const numOrg = await contract.call('numOrganizers');
 
-      console.log('form.numOrg:', numOrg.toNumber());
-      console.log('form.name:', form.name);
-      console.log('form.image:', await uploadToIpfs(form.image));
+      // console.log('form.numOrg:', numOrg.toNumber());
+      // console.log('form.name:', form.name);
+      // console.log('form.document:', form.document);
+      // console.log('form.image:', await uploadToIpfs(form.document));
 
-
-      const data = await registerAsOrganizer({
+      const data = await createOrganizer({
         args: [
           form.name,
-          await uploadToIpfs(form.image)
+          await uploadToIpfs(form.document)
         ],
       });
 
@@ -174,10 +220,9 @@ export const StateContextProvider = ({ children }) => {
     }
   }
 
-  const getOrganizer = async (onlyVerified, includeArchived) => {
+  const getOrganizer = async () => {
     //const { data, isLoading } = useContractRead(contract, "viewAllOrganizers", [onlyVerified, includeArchived])
-    const data = await contract.call('viewAllOrganizers', [onlyVerified, includeArchived]);
-    console.log("Org Data :",data);
+    const data = await contract.call('getOrganizers');
     const parsedOrganizer = data.map((organizer, i) => ({
       oId: organizer.organizerId.toNumber(),
       account: organizer.account,
@@ -192,6 +237,50 @@ export const StateContextProvider = ({ children }) => {
   }
 
 
+  const updateOrganizer = async (form) => {
+    console.log("updateOrganizer", form)
+
+    try {
+      const data = await contract.call('updateOrganizer', [
+        ethers.BigNumber.from(form.oId),
+        form.name,
+        address,
+        await uploadToIpfs(form.documentUrl),
+        form.isVerified,
+        form.isArchived
+      ]);
+
+      console.log("contract call success", data)
+    } catch (error) {
+      console.log("contract call failure", error)
+    }
+  }
+
+  const archiveOrganizer = async (organizerId) => {
+    try {
+      const data = await contract.call('archiveOrganizer', [
+        organizerId
+      ]);
+
+      //console.log("contract call success", data)
+    } catch (error) {
+      //console.log("contract call failure", error)
+    }
+  }
+
+  const setOrganizerStatus = async (organizerId, isVerified) => {
+    try {
+      const data = await contract.call('setOrganizerVerificationStatus', [
+        organizerId, isVerified
+      ]);
+
+      //console.log("contract call success", data)
+    } catch (error) {
+      //console.log("contract call failure", error)
+    }
+  }
+
+
   return (
     <StateContext.Provider
       value={{
@@ -199,12 +288,16 @@ export const StateContextProvider = ({ children }) => {
         contract,
         connect,
         createCampaign: publishCampaign,
+        updateCampaign,
         getCampaigns,
         getUserCampaigns,
         donate,
         getDonations,
         applyOrganizer,
-        getOrganizer
+        getOrganizer,
+        updateOrganizer,
+        archiveOrganizer,
+        setOrganizerStatus
       }}
     >
       {children}

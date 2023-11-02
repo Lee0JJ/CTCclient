@@ -7,20 +7,20 @@ export const navlinks = [
     link: '/',
   },
   {
-    name: 'campaign',
+    name: 'concertcreate',
     imgUrl: createCampaign,
-    link: '/create-campaign',
+    link: '/create-concert',
   },
   {
-    name: 'payment',
+    name: 'organizerlist',
     imgUrl: payment,
     link: '/list-organizer',
     disabled: false,
   },
   {
-    name: 'withdraw',
+    name: 'concertedit',
     imgUrl: withdraw,
-    link: '/',
+    link: '/edit-concert',
     disabled: false,
   },
   {

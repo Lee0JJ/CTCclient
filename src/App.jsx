@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 
 import { Sidebar, Navbar } from './components';
 import { CampaignDetails, CreateCampaign, Home, Profile } from './pages';
-import { CreateConcert, ListOrganizer } from './pages';
+import { CreateConcert, ListOrganizer, EditConcert } from './pages';
 
 const App = () => {
 
@@ -19,9 +19,10 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/create-campaign" element={<CreateConcert />} />
+          <Route path="/create-concert" element={<CreateConcert />} />
           <Route path="/list-organizer" element={<ListOrganizer />} />
-          <Route path="/campaign-details/:id" element={<CampaignDetails />} />
+          <Route path="/edit-concert/:id" element={<EditConcert />} />
+          <Route path="/concert-details/:id" element={<CampaignDetails />} />
           
         </Routes>
       </div>

@@ -4,3 +4,4 @@ export { default as CreateCampaign } from './CreateCampaign';
 export { default as CampaignDetails } from './CampaignDetails';
 export { default as CreateConcert } from './CreateConcert';
 export { default as ListOrganizer } from './ListOrganizer';
+export { default as EditConcert } from '../components/EditConcert';

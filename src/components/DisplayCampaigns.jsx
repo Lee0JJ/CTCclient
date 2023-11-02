@@ -4,13 +4,17 @@ import { v4 as uuidv4 } from "uuid";
 import FundCard from './FundCard';
 import { loader } from '../assets';
 
-const DisplayCampaigns = ({ title, isLoading, campaigns }) => {
+const DisplayCampaigns = ({ title, isLoading, campaigns, editable }) => {
   const navigate = useNavigate();
 
   const handleNavigate = (campaign) => {
-    navigate(`/campaign-details/${campaign.name}`, { state: campaign })
+    if (editable) {
+      navigate(`/edit-concert/${campaign.name}`, { state: campaign })
+    } else {
+      navigate(`/concert-details/${campaign.name}`, { state: campaign })
+    }
   }
-  
+
   return (
     <div>
       <h1 className="font-epilogue font-semibold text-[18px] text-white text-left">{title} ({campaigns.length})</h1>
@@ -26,7 +30,7 @@ const DisplayCampaigns = ({ title, isLoading, campaigns }) => {
           </p>
         )}
 
-        {!isLoading && campaigns.length > 0 && campaigns.map((campaign) => <FundCard 
+        {!isLoading && campaigns.length > 0 && campaigns.map((campaign) => <FundCard
           key={uuidv4()}
           {...campaign}
           handleClick={() => handleNavigate(campaign)}

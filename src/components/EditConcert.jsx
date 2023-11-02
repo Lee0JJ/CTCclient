@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom';
-import { ethers } from 'ethers';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { useStateContext } from '../context';
 import { money } from '../assets';
@@ -11,30 +10,50 @@ import { checkIfImage } from '../utils';
 import { useStorageUpload } from '@thirdweb-dev/react';
 import { ThirdwebStorage } from '@thirdweb-dev/storage';
 
-const CreateConcert = () => {
+import { tagType, thirdweb } from '../assets';
+import { daysLeft, calTotalAvailableTickets, calLowestTicketPrice } from '../utils';
+
+const EditConcert = () => {
+  const { state } = useLocation();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const { createCampaign } = useStateContext();
+  const { createCampaign, updateCampaign } = useStateContext();
   const [form, setForm] = useState({
-    name: 'Concert 1',
-    date: '2023-09-09T15:30:45',
-    venue: 'Venue 1',
-    numZone: 1,
-    zoneInfo: [{ price: 1, seatAmount: 1 }],
-    image: [],
-    description: 'a'
-  });
+    concertId: state.cId,
+    name: state.name,
+      date: new Date(state.date * 1000).toISOString().substring(0, 16),
+      venue: state.venue,
+      numZone: state.numZone,
+      zoneInfo: state.zoneInfo,
+      image: state.image,
+      description: state.description
+    });
+
+
+
+  //ZONE selection
+  const [selectedZone, setSelectedZone] = useState(null);
+
+  // Filter available zones
+  const availableZones = state.zoneInfo;
+
+  // Handle zone selection
+  const handleZoneSelection = (zone) => {
+    console.log(zone);
+    setSelectedZone(zone);
+  };
 
   //IPFS
   const { mutateAsync: upload } = useStorageUpload();
   const storage = new ThirdwebStorage();
 
+
   const handleFormFieldChange = async (fieldName, e) => {
     if (fieldName == 'image') {
       setForm({ ...form, [fieldName]: e })
-    }else{
+    } else {
       setForm({ ...form, [fieldName]: e.target.value })
-    }    
+    }
   }
 
   //ADD ZONE === START
@@ -45,6 +64,8 @@ const CreateConcert = () => {
       ...prevForm,
       zoneInfo: [...prevForm.zoneInfo, { price: '', seatAmount: '' }]
     }));
+    console.log(Number(state.zoneInfo));
+    console.log(Number(state.zoneInfo[0][0]));
   };
 
   const removeRow = (index) => {
@@ -74,14 +95,17 @@ const CreateConcert = () => {
 
     try {
       setIsLoading(true);
-      await createCampaign({ ...form });
+      //set numZone = zoneInfo.length
+      form.numZone = form.zoneInfo.length;
+      await updateCampaign({ ...form });
       setIsLoading(false);
-      navigate('/');
+      navigate('/profile');
     } catch (error) {
       console.error('Error handling form submission:', error);
       setIsLoading(false);
     }
   }
+
 
   return (
     <div className="bg-[#1c1c24] flex justify-center items-center flex-col rounded-[10px] sm:p-10 p-4">
@@ -153,6 +177,7 @@ const CreateConcert = () => {
                 className="w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
               />
               <button
+                type='button'
                 onClick={() => removeRow(index)}
                 className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 focus:outline-none"
               >
@@ -184,7 +209,7 @@ const CreateConcert = () => {
 
         {/* UPLOAD IMAGE */}
         <FormField
-          labelName="Campaign image *"
+          labelName="Campaign image (Legacy image will be deleted)*"
           placeholder="Place image URL of your campaign"
           inputType="file"
           // Remove the value attribute as we are storing URLs in state
@@ -195,7 +220,7 @@ const CreateConcert = () => {
         <div className="flex justify-center items-center mt-[40px]">
           <CustomButton
             btnType="submit"
-            title="Submit new campaign"
+            title="Update Concert"
             styles="bg-[#1dc071]"
           />
         </div>
@@ -204,4 +229,4 @@ const CreateConcert = () => {
   )
 }
 
-export default CreateConcert
+export default EditConcert

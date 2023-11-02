@@ -26,10 +26,15 @@ export const checkIfImage = (url, callback) => {
 export const calTotalAvailableTickets = (zoneInfo) => {
   let totalAvailableTickets = 0;
 
-  for (let i = 0; i < zoneInfo.length; i++) {
-    if (zoneInfo[i] && zoneInfo[i][1]) {
-      totalAvailableTickets += parseInt(ethers.BigNumber.from(zoneInfo[i][1]));
+  try {
+    for (let i = 0; i < zoneInfo.length; i++) {
+      if (zoneInfo[i] && zoneInfo[i][1]) {
+        totalAvailableTickets += parseInt(ethers.BigNumber.from(zoneInfo[i][1]));
+      }
     }
+  } catch (error) {
+    console.error(error);
+    return null;
   }
 
   return totalAvailableTickets;
@@ -37,13 +42,18 @@ export const calTotalAvailableTickets = (zoneInfo) => {
 
 export const calLowestTicketPrice = (zoneInfo) => {
   let lowestPrice = null;
-  for (let i = 0; i < zoneInfo.length; i++) {
-    const price = parseInt(ethers.BigNumber.from(zoneInfo[i][0]));
-    if (lowestPrice === null || (price < lowestPrice 
-      &&  parseInt(ethers.BigNumber.from(zoneInfo[i][1] > 0) ))) {
-      lowestPrice = price;
+  try {
+    for (let i = 0; i < zoneInfo.length; i++) {
+      const price = parseInt(ethers.BigNumber.from(zoneInfo[i][0]));
+      if (lowestPrice === null || (price < lowestPrice 
+        &&  parseInt(ethers.BigNumber.from(zoneInfo[i][1] > 0) ))) {
+        lowestPrice = price;
+      }
     }
+  } catch (error) {
+    console.error(error);
+    return null;
   }
-  return lowestPrice + " ETH";
+  return lowestPrice !== null ? lowestPrice + " ETH" : null;
 };
 

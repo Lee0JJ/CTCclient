@@ -7,7 +7,7 @@ function ListOrganizer() {
     const [activeTab, setActiveTab] = useState("All");
     const [organizers, setOrganizers] = useState([]);
 
-    const { address, contract, getOrganizer } = useStateContext();
+    const { address, contract, getOrganizer, archiveOrganizer, setOrganizerStatus } = useStateContext();
 
     const fetchOrganizers = async () => {
         setIsLoading(true);
@@ -36,7 +36,7 @@ function ListOrganizer() {
             <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
                 <Tabs tabs={["All", "Pending", "Approved", "Reject"]} activeTab={activeTab} onTabClick={handleTabClick} />
                 <br />
-                <div className="max-w-full overflow-x-auto">
+                <div className="sm:max-w-[1080px] overflow-x-auto">
                     <table className="w-full table-auto">
                         <thead>
                             <tr className="bg-gray-2 text-left dark:bg-meta-4">
@@ -83,6 +83,10 @@ function Tabs({ tabs, activeTab, onTabClick }) {
 }
 
 function TabContent({ tabName, organizers }) {
+    const [isLoading, setIsLoading] = useState(false);
+    const { archiveOrganizer, setOrganizerStatus } = useStateContext();
+
+
     const filteredOrganizers = organizers.filter((organizer) => {
         if (tabName === "All") {
             return true;
@@ -90,11 +94,35 @@ function TabContent({ tabName, organizers }) {
             return true;
         } else if (tabName === "Approved" && organizer.isVerified && !organizer.isArchived) {
             return true;
-        } else if (tabName === "Reject" && organizer.isVerified && organizer.isArchived) {
+        } else if (tabName === "Reject" && organizer.isArchived) {
             return true;
         }
         return false;
     });
+
+    // Define the archive function within the component
+    const archive = async (organizerId) => {
+        try {
+            setIsLoading(true);
+            const data = await archiveOrganizer(organizerId);
+            setIsLoading(false);
+            //console.log("contract call success", data)
+        } catch (error) {
+            console.log("contract call failure", error);
+        }
+    }
+
+    const setTrueStatus = async (organizerId) => {
+        try {
+            console.log("setTrueStatus", organizerId);
+            setIsLoading(true);
+            const data = await setOrganizerStatus(organizerId, true);
+            setIsLoading(false);
+            //console.log("contract call success", data)
+        } catch (error) {
+            console.log("contract call failure", error)
+        }
+    }
 
     return (
         <tbody>
@@ -106,8 +134,8 @@ function TabContent({ tabName, organizers }) {
                         </h5>
                     </td>
                     <td className="py-5 px-4">
-                        <p className="text-black dark:text-white">
-                            {organizer.documentUrl}
+                        <p className="text-black max-w-[190px] overflow-x-hidden dark:text-white">
+                            <a href={organizer.documentUrl} target="_blank">{organizer.documentUrl}</a>
                         </p>
                     </td>
                     <td className="py-5 px-4">
@@ -115,11 +143,11 @@ function TabContent({ tabName, organizers }) {
                             <p className="inline-flex rounded-full bg-warning bg-opacity-10 py-1 px-3 text-sm font-medium text-warning">
                                 Pending
                             </p>
-                        ) : organizer.isVerified === true ? (
+                        ) : organizer.isVerified === true && organizer.isArchived === false ? (
                             <p className="inline-flex rounded-full bg-success bg-opacity-10 py-1 px-3 text-sm font-medium text-warning">
                                 Verified
                             </p>
-                        ) : organizer.isVerified === false && organizer.isArchived === true ? (
+                        ) : organizer.isArchived === true ? (
                             <p className="inline-flex rounded-full bg-danger bg-opacity-10 py-1 px-3 text-sm font-medium text-warning">
                                 Rejected
                             </p>
@@ -146,7 +174,10 @@ function TabContent({ tabName, organizers }) {
                                     />
                                 </svg>
                             </button>
-                            <button className="hover:text-primary">
+                            <button onClick={
+                                // call archive function to set this row organzerId to true
+                                () => archive(organizer.oId)
+                            } className="hover:text-primary">
                                 <svg
                                     className="fill-current"
                                     width="18"
@@ -173,7 +204,10 @@ function TabContent({ tabName, organizers }) {
                                     />
                                 </svg>
                             </button>
-                            <button className="hover:text-primary">
+                            <button onClick={
+                                () => setTrueStatus(organizer.oId)
+                            }
+                                className="hover:text-primary">
                                 <svg
                                     className="fill-current"
                                     width="18"

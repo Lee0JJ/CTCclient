@@ -123,8 +123,8 @@ const CampaignDetails = () => {
                   onClick={() => handleZoneSelection(index)}
                   disabled={selectedZone !== null}
                 >
-                  Price: {parseInt(ethers.BigNumber.from(zone[0]))}<br/> 
-                  Available Seats: {parseInt(ethers.BigNumber.from(zone[1]))}
+                  Price: {zone.price}<br />
+                  Available Seats: {zone.seatAmount}
                 </button>
               ))}
             </div>
@@ -141,7 +141,21 @@ const CampaignDetails = () => {
             <div className="mt-[30px]">
               <input
                 type="number"
-                placeholder="ETH 0.1"
+                placeholder="Ticket Price"
+                step="0.01"
+                className="w-full py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#3a3a43] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+
+              {/* some spacing using tailwind */}
+              <div className="my-[5px] p-1 rounded-[10px]">
+
+              </div>
+
+              <input
+                type="number"
+                placeholder="Ticket Amount"
                 step="0.01"
                 className="w-full py-[10px] sm:px-[20px] px-[15px] outline-none border-[1px] border-[#3a3a43] bg-transparent font-epilogue text-white text-[18px] leading-[30px] placeholder:text-[#4b5264] rounded-[10px]"
                 value={amount}
