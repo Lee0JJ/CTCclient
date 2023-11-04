@@ -19,6 +19,7 @@ const FormField = ({ labelName, placeholder, inputType, isTextArea, value, handl
       ) : (
         <input 
           required
+          multiple={inputType === 'file'}
           value={value}
           onChange={handleChange}
           type={inputType}

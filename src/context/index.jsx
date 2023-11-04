@@ -7,6 +7,10 @@ import { EditionMetadataWithOwnerOutputSchema } from '@thirdweb-dev/sdk';
 //IPFS URL
 import { useStorageUpload } from '@thirdweb-dev/react';
 
+//AXIOS
+import axios from 'axios';
+
+
 const StateContext = createContext();
 
 function convertDatetimeToUint256(inputValue) {
@@ -23,7 +27,7 @@ function convertDatetimeToUint256(inputValue) {
 }
 
 export const StateContextProvider = ({ children }) => {
-  const { contract } = useContract('0x31C0B8FCbceA9858D7b20871064167828f637B24');
+  const { contract } = useContract('0x57a16bA9144b76FD2a87cad6C8B17BC8393e6F0F');
   const { mutateAsync: createConcert, isLoading } = useContractWrite(contract, "createConcert")
   const { mutateAsync: createOrganizer, isLoading2 } = useContractWrite(contract, "registerAsOrganizer")
 
@@ -34,14 +38,13 @@ export const StateContextProvider = ({ children }) => {
   const [file, setFile] = useState('');
   const [uploadUrls, setUploadUrls] = useState('');
   const { mutateAsync: upload } = useStorageUpload();
-  const [imageUrls, setImageUrls] = useState([]); // New state for image URLs
 
   const uploadToIpfs = async (file) => {
     const uploadUrl = await upload({
       data: [file],
       options: {
         uploadWithGatewayUrl: true,
-        uploadWithoutDirectory: true
+        uploadWithoutDirectory: false
       }
     });
     return uploadUrl;
@@ -68,19 +71,39 @@ export const StateContextProvider = ({ children }) => {
       // console.log('form.image:', form.image);
       // console.log('form.imageURL', await uploadToIpfs(form.image));
 
+      //Set ImageUrls by the uploaded image
+      const imageUrls = await uploadToIpfs(form.image);
 
-      const data = await createConcert({
-        args: [
-          numConcert.add(ethers.BigNumber.from(1)),
-          form.name,
-          convertDatetimeToUint256(form.date),
-          form.venue,
-          ethers.BigNumber.from(form.numZone),
-          zoneInfo,
-          await uploadToIpfs(form.image)
-        ],
-      });
+      console.log('imageUrls:', imageUrls);
 
+      // const data = await createConcert({
+      //   args: [
+      //     numConcert.add(ethers.BigNumber.from(1)),
+      //     form.name,
+      //     convertDatetimeToUint256(form.date),
+      //     form.venue,
+      //     ethers.BigNumber.from(form.numZone),
+      //     zoneInfo,
+      //     imageUrls
+      //   ],
+      // });
+
+      //create form for axios
+      const concert = {
+        concertid: numConcert.add(ethers.BigNumber.from(1)).toNumber(),
+        organizerid: getConcertOwnerId(address),
+        name: form.name,
+        owner: address,
+        venue: form.venue,
+        description: form.description,
+        createdDate: new Date(),
+        conductedDate: form.date,
+        numZone: form.numZone,
+        zoneinfo: JSON.stringify(zoneInfo),
+        imgurl: imageUrls
+      }
+
+      //await axios.post("https://localhost:8800/concerts", concert );
       //console.log("contract call success", data)
     } catch (error) {
       console.log("contract call failure", error)
@@ -105,6 +128,7 @@ export const StateContextProvider = ({ children }) => {
       // console.log('form.image:', form.image);
       // console.log('form.imageURL', await uploadToIpfs(form.image));
 
+      const imageUrls = await uploadToIpfs(form.image);
 
       const data = await createConcert({
         args: [
@@ -114,7 +138,7 @@ export const StateContextProvider = ({ children }) => {
           form.venue,
           ethers.BigNumber.from(form.numZone),
           zoneInfo,
-          await uploadToIpfs(form.image)
+          imageUrls
         ],
       });
 
@@ -150,30 +174,22 @@ export const StateContextProvider = ({ children }) => {
     return parsedCampaigns;
   }
 
-
-  const getCampaigns2 = async () => {
-    const campaigns = await contract.call('getCampaigns');
-
-    const parsedCampaings = campaigns.map((campaign, i) => ({
-      owner: campaign.owner,
-      title: campaign.title,
-      description: campaign.description,
-      target: ethers.utils.formatEther(campaign.target.toString()),
-      deadline: campaign.deadline.toNumber(),
-      amountCollected: ethers.utils.formatEther(campaign.amountCollected.toString()),
-      image: campaign.image,
-      pId: i
-    }));
-
-    return parsedCampaings;
-  }
-
   const getUserCampaigns = async () => {
     const allCampaigns = await getCampaigns();
 
     const filteredCampaigns = allCampaigns.filter((campaign) => campaign.owner === address);
 
     return filteredCampaigns;
+  }
+
+  const getConcertOwnerId = async (address) => {
+    // Get concert's owner organizer id
+    const organizer = await getOrganizer();
+
+    //find organizer id by their address
+    const organizerId = organizer.find((organizer) => organizer.account === address).oId;
+
+    return organizerId;
   }
 
   const donate = async (pId, amount) => {
@@ -207,10 +223,12 @@ export const StateContextProvider = ({ children }) => {
       // console.log('form.document:', form.document);
       // console.log('form.image:', await uploadToIpfs(form.document));
 
+      const imageUrls = await uploadToIpfs(form.image);
+
       const data = await createOrganizer({
         args: [
           form.name,
-          await uploadToIpfs(form.document)
+          imageUrls
         ],
       });
 
@@ -239,13 +257,15 @@ export const StateContextProvider = ({ children }) => {
 
   const updateOrganizer = async (form) => {
     console.log("updateOrganizer", form)
+    
+    const imageUrls = await uploadToIpfs(form.documentUrl);
 
     try {
       const data = await contract.call('updateOrganizer', [
         ethers.BigNumber.from(form.oId),
         form.name,
         address,
-        await uploadToIpfs(form.documentUrl),
+        imageUrls,
         form.isVerified,
         form.isArchived
       ]);

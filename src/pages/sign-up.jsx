@@ -97,7 +97,7 @@ export function SignUp({ org }) {
           /> */}
               <Input required variant="standard" label="Organization Name" size="lg" onChange={(e) => handleFormFieldChange('name', e)} />
               <Input required variant="standard" type="email" label="Organization Email" size="lg" onChange={(e) => handleFormFieldChange('email', e)} />
-              <Input required variant="standard" type="file" label="Organization Document" size="lg" onChange={(e) => handleFormFieldChange('document', e.target.files)} />
+              <Input required variant="standard" multiple type="file" label="Organization Document" size="lg" onChange={(e) => handleFormFieldChange('document', e.target.files)} />
               {/* <Input
               variant="standard"
               type="password"

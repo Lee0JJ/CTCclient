@@ -2,6 +2,7 @@
   "name": "client",
   "private": true,
   "version": "0.0.0",
+  "proxy": "http://localhost:3000",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -13,6 +14,7 @@
     "@thirdweb-dev/chains": "^0.1.57",
     "@thirdweb-dev/react": "^4.0.10",
     "@thirdweb-dev/sdk": "^4.0.9",
+    "axios": "^1.6.0",
     "client": "file:",
     "ethers": "^5.7.2",
     "react": "^18.2.0",

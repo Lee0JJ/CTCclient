@@ -6,15 +6,13 @@ import { SignUp } from '../pages/sign-up';
 
 
 const Profile = () => {
+  const { address, contract, getUserCampaigns, getOrganizer } = useStateContext();
+
   const [isLoading, setIsLoading] = useState(false);
   const [campaigns, setCampaigns] = useState([]);
   const [organizers, setOrganizers] = useState([]);
-  //User Status
   const [organizer, setOrganizer] = useState(null);
   const [userStatus, setUserStatus] = useState(null);
-  let oId = '';
-
-  const { address, contract, getUserCampaigns, getOrganizer } = useStateContext();
 
   const fetchCampaigns = async () => {
     setIsLoading(true);
@@ -30,49 +28,41 @@ const Profile = () => {
     setIsLoading(false);
   }
 
-  // Create a function to determine user status
   const determineUserStatus = async () => {
-    const organizer = organizers.find((organizer) => organizer.account === address);
+    const foundOrganizer = organizers.find((org) => org.account === address);
 
-    if (organizer) {
-      setOrganizer(organizer);
-      if (organizer.isVerified) {
+    if (!foundOrganizer) {
+      setUserStatus("New User");
+      await fetchOrganizers();
+    } else {
+      setOrganizer(foundOrganizer);
+      if (foundOrganizer.isVerified) {
         setUserStatus("Organizer");
-      } else if (!organizer.isVerified && !organizer.isArchived) {
+      } else if (!foundOrganizer.isVerified && !foundOrganizer.isArchived) {
         setUserStatus("Pending");
-      } else if (organizer.isArchived) {
+      } else if (foundOrganizer.isArchived) {
         setUserStatus("Rejected");
       }
-    } else {
-      setUserStatus("Organizer");
     }
-  };
+  }
 
   useEffect(() => {
-    // Check user status immediately when the component mounts
-    determineUserStatus();
-
-    // Set up an interval to check user status every 2 seconds
-    const intervalId = setInterval(() => {
-      determineUserStatus();
-    }, 2000);
-
-    // Clean up the interval when the component unmounts
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []); // Empty dependency array ensures this effect runs only once
+    if (contract) {
+      fetchCampaigns();
+      fetchOrganizers();
+    }
+  }, [contract]);
 
   useEffect(() => {
-    if (contract) fetchCampaigns();
-    if (contract) fetchOrganizers();
     determineUserStatus();
-    console.log("User Status:", userStatus);
-  }, [address, contract, userStatus]);
+  }, [address, organizers]);
 
   const handleCloseModal = () => {
     // Code to close the modal goes here
-    document.getElementById('rejectmodal').style.display = 'none';
+    const rejectModal = document.getElementById('rejectmodal');
+    if (rejectModal) {
+      rejectModal.style.display = 'none';
+    }
   };
 
   return (

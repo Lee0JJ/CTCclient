@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect} from 'react';
 
 import { tagType, thirdweb } from '../assets';
 import { daysLeft, calTotalAvailableTickets, calLowestTicketPrice } from '../utils';
@@ -7,9 +7,29 @@ import { daysLeft, calTotalAvailableTickets, calLowestTicketPrice } from '../uti
 const FundCard = ({ cId, owner, name, venue, numZones, zoneInfo, date, image, handleClick }) => {
   const remainingDays = daysLeft(date);
 
+  const [images, setImages] = useState([]);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const response = await fetch(image);
+        const json = await response.json();
+        if (typeof json === 'object') {
+          setImages(json);
+        } else {
+          setImages([image]);
+        }
+        console.log(images);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchImages();
+  }, [image]);
+
   return (
     <div className="sm:w-[288px] w-full rounded-[15px] bg-[#1c1c24] cursor-pointer" onClick={handleClick}>
-      <img src={image} alt="fund" className="w-full h-[158px] object-cover rounded-[15px]" />
+      <img src={image[0]} alt="fund" className="w-full h-[158px] object-cover rounded-[15px]" />
 
       <div className="flex flex-col p-4">
         <div className="flex flex-row items-center mb-[18px]">
