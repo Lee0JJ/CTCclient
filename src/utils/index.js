@@ -7,12 +7,6 @@ export const daysLeft = (deadline) => {
   return remainingDays.toFixed(0);
 };
 
-export const calculateBarPercentage = (goal, raisedAmount) => {
-  const percentage = Math.round((raisedAmount * 100) / goal);
-
-  return percentage;
-};
-
 export const checkIfImage = (url, callback) => {
   const img = new Image();
   img.src = url;
@@ -28,12 +22,12 @@ export const calTotalAvailableTickets = (zoneInfo) => {
 
   try {
     for (let i = 0; i < zoneInfo.length; i++) {
-      if (zoneInfo[i] && zoneInfo[i][1]) {
-        totalAvailableTickets += parseInt(ethers.BigNumber.from(zoneInfo[i][1]));
+      if (zoneInfo[i] && zoneInfo[i].seatAmount > 0) {
+        totalAvailableTickets += zoneInfo[i].seatAmount;
       }
     }
   } catch (error) {
-    console.error(error);
+    console.log(error);
     return null;
   }
 
@@ -44,16 +38,46 @@ export const calLowestTicketPrice = (zoneInfo) => {
   let lowestPrice = null;
   try {
     for (let i = 0; i < zoneInfo.length; i++) {
-      const price = parseInt(ethers.BigNumber.from(zoneInfo[i][0]));
-      if (lowestPrice === null || (price < lowestPrice 
-        &&  parseInt(ethers.BigNumber.from(zoneInfo[i][1] > 0) ))) {
+      const price = zoneInfo[i].price;
+      if (lowestPrice === null || (price < lowestPrice
+        && zoneInfo[i][1] > 0)) {
         lowestPrice = price;
       }
     }
   } catch (error) {
-    console.error(error);
+    console.log(error);
     return null;
   }
+
   return lowestPrice !== null ? lowestPrice + " ETH" : null;
+};
+
+export const calculateBarPercentage = (zoneInfo) => {
+  //Sum all ticket in zoneInfo[i].seatAmount
+  let totalSeat = 0;
+  let availableSeat = 0;
+  for (let i = 0; i < zoneInfo.length; i++) {
+    totalSeat += zoneInfo[i].seatAmount;
+  }
+  const percentage = Math.round((calTotalAvailableTickets * 100) / totalSeat);
+
+  return percentage;
+};
+
+
+export const directoryToJSON = async (image) => {
+  let images = [];
+
+  try {
+    const response = await fetch(image);
+    console.log(response);
+    const json = await response.json();
+    console.log(json);
+    images = json;
+  } catch (error) {
+    console.error(error);
+  }
+
+  return images
 };
 

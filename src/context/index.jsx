@@ -76,17 +76,17 @@ export const StateContextProvider = ({ children }) => {
 
       console.log('imageUrls:', imageUrls);
 
-      // const data = await createConcert({
-      //   args: [
-      //     numConcert.add(ethers.BigNumber.from(1)),
-      //     form.name,
-      //     convertDatetimeToUint256(form.date),
-      //     form.venue,
-      //     ethers.BigNumber.from(form.numZone),
-      //     zoneInfo,
-      //     imageUrls
-      //   ],
-      // });
+      const data = await createConcert({
+        args: [
+          numConcert.add(ethers.BigNumber.from(1)),
+          form.name,
+          convertDatetimeToUint256(form.date),
+          form.venue,
+          ethers.BigNumber.from(form.numZone),
+          zoneInfo,
+          imageUrls
+        ],
+      });
 
       //create form for axios
       const concert = {
@@ -169,7 +169,7 @@ export const StateContextProvider = ({ children }) => {
         pId: i
       };
     });
-    console.log(parsedCampaigns);
+    //console.log(parsedCampaigns);
 
     return parsedCampaigns;
   }

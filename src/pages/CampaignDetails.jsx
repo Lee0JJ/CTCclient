@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 
 import { useStateContext } from '../context';
 import { CountBox, CustomButton, Loader } from '../components';
-import { calculateBarPercentage, daysLeft, calTotalAvailableTickets, calLowestTicketPrice } from '../utils';
+import { directoryToJSON, calculateBarPercentage, daysLeft, calTotalAvailableTickets, calLowestTicketPrice } from '../utils';
 import { thirdweb } from '../assets';
 
 const CampaignDetails = () => {
@@ -17,6 +17,16 @@ const CampaignDetails = () => {
   const [donators, setDonators] = useState([]);
 
   const remainingDays = daysLeft(state.date);
+
+  const [images, setImages] = useState([]);
+
+  useEffect(() => {
+    async function fetchImages() {
+      setImages(await directoryToJSON(state.image));
+    }
+    fetchImages();
+  }, [state.image]);
+
 
   const fetchDonators = async () => {
     //const data = await getDonations(state.pId);
@@ -40,12 +50,9 @@ const CampaignDetails = () => {
   //ZONE selection
   const [selectedZone, setSelectedZone] = useState(null);
 
-  // Filter available zones
-  const availableZones = state.zoneInfo;
-
   // Handle zone selection
   const handleZoneSelection = (zone) => {
-    console.log(zone);
+    console.log(state.zoneInfo[0][0]);
     setSelectedZone(zone);
   };
 
@@ -55,9 +62,9 @@ const CampaignDetails = () => {
 
       <div className="w-full flex md:flex-row flex-col mt-10 gap-[30px]">
         <div className="flex-1 flex-col">
-          <img src={state.image} alt="campaign" className="w-full h-[410px] object-cover rounded-xl" />
+          <img src={images[0]} alt="campaign" className="w-full h-[410px] object-cover rounded-xl" />
           <div className="relative w-full h-[5px] bg-[#3a3a43] mt-2">
-            <div className="absolute h-full bg-[#4acd8d]" style={{ width: `${calculateBarPercentage(state.target, state.amountCollected)}%`, maxWidth: '100%' }}>
+            <div className="absolute h-full bg-[#4acd8d]" style={{ width: `${calculateBarPercentage(state.zoneInfo)}%`, maxWidth: '100%' }}>
             </div>
           </div>
         </div>
