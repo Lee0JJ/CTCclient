@@ -52,15 +52,27 @@ export const calLowestTicketPrice = (zoneInfo) => {
   return lowestPrice !== null ? lowestPrice + " ETH" : null;
 };
 
+export const calTotalTickets = (zoneInfo) => {
+  let totalTickets = 0;
+  try {
+    for (let i = 0; i < zoneInfo.length; i++) {
+      if (zoneInfo[i] && zoneInfo[i].seatAmount > 0) {
+        totalTickets += Number(zoneInfo[i].seatAmount);
+        console.log(zoneInfo[i].seatAmount);
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+
+  return totalTickets;
+}
+
 export const calculateBarPercentage = (zoneInfo) => {
   //Sum all ticket in zoneInfo[i].seatAmount
-  let totalSeat = 0;
-  let availableSeat = 0;
-  for (let i = 0; i < zoneInfo.length; i++) {
-    totalSeat += zoneInfo[i].seatAmount;
-  }
+  let totalSeat = calTotalTickets(zoneInfo);
   const percentage = Math.round((calTotalAvailableTickets * 100) / totalSeat);
-
   return percentage;
 };
 
@@ -70,9 +82,7 @@ export const directoryToJSON = async (image) => {
 
   try {
     const response = await fetch(image);
-    console.log(response);
     const json = await response.json();
-    console.log(json);
     images = json;
   } catch (error) {
     console.error(error);

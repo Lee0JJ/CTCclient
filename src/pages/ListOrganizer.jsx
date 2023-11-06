@@ -155,7 +155,7 @@ function TabContent({ tabName, organizers }) {
                     </td>
                     <td className="py-5 px-4">
                         <div className="flex items-center space-x-3.5">
-                            <button className="hover:text-primary">
+                            {/* <button className="hover:text-primary">
                                 <svg
                                     className="fill-current"
                                     width="18"
@@ -173,7 +173,7 @@ function TabContent({ tabName, organizers }) {
                                         fill=""
                                     />
                                 </svg>
-                            </button>
+                            </button> */}
                             <button onClick={
                                 // call archive function to set this row organzerId to true
                                 () => archive(organizer.oId)

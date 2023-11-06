@@ -3,6 +3,7 @@ import React, { useContext, useState, createContext } from 'react';
 import { useAddress, useContract, useMetamask, useContractWrite, useContractRead } from '@thirdweb-dev/react';
 import { ethers } from 'ethers';
 import { EditionMetadataWithOwnerOutputSchema } from '@thirdweb-dev/sdk';
+import { calTotalTickets } from '../utils';
 
 //IPFS URL
 import { useStorageUpload } from '@thirdweb-dev/react';
@@ -76,35 +77,40 @@ export const StateContextProvider = ({ children }) => {
 
       console.log('imageUrls:', imageUrls);
 
-      const data = await createConcert({
-        args: [
-          numConcert.add(ethers.BigNumber.from(1)),
-          form.name,
-          convertDatetimeToUint256(form.date),
-          form.venue,
-          ethers.BigNumber.from(form.numZone),
-          zoneInfo,
-          imageUrls
-        ],
-      });
+      // const data = await createConcert({
+      //   args: [
+      //     numConcert.add(ethers.BigNumber.from(1)),
+      //     form.name,
+      //     convertDatetimeToUint256(form.date),
+      //     form.venue,
+      //     ethers.BigNumber.from(form.zoneInfo.length),
+      //     zoneInfo,
+      //     imageUrls
+      //   ],
+      // });
+
+      console.log("contract call success");
 
       //create form for axios
       const concert = {
-        concertid: numConcert.add(ethers.BigNumber.from(1)).toNumber(),
-        organizerid: getConcertOwnerId(address),
+        organizerid: await getConcertOwnerId(address),
         name: form.name,
         owner: address,
         venue: form.venue,
         description: form.description,
-        createdDate: new Date(),
+        category: 'none',
+        createdDate: new Date().toISOString().slice(0, -1),
         conductedDate: form.date,
-        numZone: form.numZone,
-        zoneinfo: JSON.stringify(zoneInfo),
+        numZone: form.zoneInfo.length,
+        zoneinfo: JSON.stringify(form.zoneInfo),
+        totalSeat: calTotalTickets(form.zoneInfo),
         imgurl: imageUrls
       }
 
-      //await axios.post("https://localhost:8800/concerts", concert );
-      //console.log("contract call success", data)
+      await axios.post("http://localhost:8800/concert", concert);
+
+      console.log("axios call success");
+
     } catch (error) {
       console.log("contract call failure", error)
     }
@@ -130,19 +136,38 @@ export const StateContextProvider = ({ children }) => {
 
       const imageUrls = await uploadToIpfs(form.image);
 
-      const data = await createConcert({
-        args: [
-          ethers.BigNumber.from(form.concertId),
-          form.name,
-          convertDatetimeToUint256(form.date),
-          form.venue,
-          ethers.BigNumber.from(form.numZone),
-          zoneInfo,
-          imageUrls
-        ],
-      });
+      // const data = await createConcert({
+      //   args: [
+      //     ethers.BigNumber.from(form.concertId),
+      //     form.name,
+      //     convertDatetimeToUint256(form.date),
+      //     form.venue,
+      //     ethers.BigNumber.from(form.numZone),
+      //     zoneInfo,
+      //     imageUrls
+      //   ],
+      // });
 
-      //console.log("contract call success", data)
+      // console.log("contract call success", data)
+      
+      //update form for axios
+      const concert = {
+        organizerid: await getConcertOwnerId(address),
+        name: form.name,
+        owner: address,
+        venue: form.venue,
+        description: form.description,
+        category: 'none',
+        createdDate: new Date().toISOString().slice(0, -1),
+        conductedDate: form.date,
+        numZone: form.zoneInfo.length,
+        zoneinfo: JSON.stringify(form.zoneInfo),
+        totalSeat: calTotalTickets(form.zoneInfo),
+        imgurl: imageUrls
+      }
+      console.log("update concert:", form.concertId)
+      await axios.put(`http://localhost:8800/concert/${form.concertId}`, concert);
+
     } catch (error) {
       console.log("contract call failure", error)
     }
@@ -223,16 +248,30 @@ export const StateContextProvider = ({ children }) => {
       // console.log('form.document:', form.document);
       // console.log('form.image:', await uploadToIpfs(form.document));
 
-      const imageUrls = await uploadToIpfs(form.image);
+      const imageUrls = await uploadToIpfs(form.document);
 
-      const data = await createOrganizer({
-        args: [
-          form.name,
-          imageUrls
-        ],
-      });
+      // const data = await createOrganizer({
+      //   args: [
+      //     form.name,
+      //     imageUrls
+      //   ],
+      // });
 
-      console.log("contract call success", data)
+      // console.log("contract call success", data)
+
+      //create form for axios
+      const organizer = {
+        name: form.name,
+        email: form.email,
+        account: address,
+        documenturl: imageUrls,
+        isverified: false,
+        isarchived: false
+      }
+
+      await axios.post("http://localhost:8800/organizer", organizer);
+
+
     } catch (error) {
       console.log("contract call failure", error)
     }
@@ -257,7 +296,7 @@ export const StateContextProvider = ({ children }) => {
 
   const updateOrganizer = async (form) => {
     console.log("updateOrganizer", form)
-    
+
     const imageUrls = await uploadToIpfs(form.documentUrl);
 
     try {
@@ -271,6 +310,20 @@ export const StateContextProvider = ({ children }) => {
       ]);
 
       console.log("contract call success", data)
+
+      //update form for axios
+      const organizer = {
+        oId: form.oId,
+        name: form.name,
+        email: form.email,
+        account: address,
+        documenturl: imageUrls,
+        isverified: form.isVerified,
+        isarchived: form.isArchived
+      }
+
+      await axios.put("http://localhost:8800/organizer", organizer);
+
     } catch (error) {
       console.log("contract call failure", error)
     }
@@ -278,25 +331,43 @@ export const StateContextProvider = ({ children }) => {
 
   const archiveOrganizer = async (organizerId) => {
     try {
-      const data = await contract.call('archiveOrganizer', [
-        organizerId
-      ]);
+      // const data = await contract.call('archiveOrganizer', [
+      //   organizerId
+      // ]);
 
-      //console.log("contract call success", data)
+      // console.log("contract call success", data)
+
+      //update form for axios
+      const organizer = {
+        isArchived: true
+      }
+
+      console.log("archiveOrganizer", organizerId)
+      await axios.put(`http://localhost:8800/organizer/${organizerId}`, organizer);
+
     } catch (error) {
-      //console.log("contract call failure", error)
+      console.log("contract call failure", error)
     }
   }
 
   const setOrganizerStatus = async (organizerId, isVerified) => {
     try {
-      const data = await contract.call('setOrganizerVerificationStatus', [
-        organizerId, isVerified
-      ]);
+      // const data = await contract.call('setOrganizerVerificationStatus', [
+      //   organizerId, isVerified
+      // ]);
 
-      //console.log("contract call success", data)
+      // console.log("contract call success", data)
+
+      //update form for axios
+      const organizer = {
+        IsVerified: isVerified
+      }
+
+      console.log("setOrganizerStatus", organizerId)
+      await axios.put(`http://localhost:8800/organizer/${organizerId}`, organizer);
+
     } catch (error) {
-      //console.log("contract call failure", error)
+      console.log("contract call failure", error)
     }
   }
 
