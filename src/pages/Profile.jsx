@@ -30,11 +30,8 @@ const Profile = () => {
 
   const determineUserStatus = async () => {
     const foundOrganizer = organizers.find((org) => org.account === address);
-
-    if (!foundOrganizer) {
-      setUserStatus("New User");
-      await fetchOrganizers();
-    } else {
+    console.log("foundOrganizer", foundOrganizer);
+    if (foundOrganizer) {
       setOrganizer(foundOrganizer);
       if (foundOrganizer.isVerified) {
         setUserStatus("Organizer");
@@ -43,7 +40,11 @@ const Profile = () => {
       } else if (foundOrganizer.isArchived) {
         setUserStatus("Rejected");
       }
+    } else {
+      setUserStatus("New User");
+      await fetchOrganizers();
     }
+    console.log("userStatus", userStatus);
   }
 
   useEffect(() => {
@@ -51,11 +52,15 @@ const Profile = () => {
       fetchCampaigns();
       fetchOrganizers();
     }
-  }, [contract]);
+  }, [contract, address]);
+
 
   useEffect(() => {
-    determineUserStatus();
-  }, [address, organizers]);
+    if (organizers.length > 0) {
+      determineUserStatus();
+    }
+    console.log("camplaings", campaigns);
+  }, [organizers]);
 
   const handleCloseModal = () => {
     // Code to close the modal goes here

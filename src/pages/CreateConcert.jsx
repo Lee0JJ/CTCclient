@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 
 import { useStateContext } from '../context';
 import { money } from '../assets';
-import { CustomButton, FormField, Loader } from '../components';
+import { CustomButton, FormField, Loader, MultiSelect  } from '../components';
 import { checkIfImage } from '../utils';
 
 //IPFS URL
@@ -22,19 +22,22 @@ const CreateConcert = () => {
     numZone: 1,
     zoneInfo: [{ price: 1, seatAmount: 1 }],
     image: [],
-    description: 'a'
+    description: 'a',
+    category: [],
   });
 
-  //IPFS
-  const { mutateAsync: upload } = useStorageUpload();
-  const storage = new ThirdwebStorage();
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  const handleSelectedOptionsChange = (newSelectedOptions) => {
+    setSelectedOptions(newSelectedOptions);
+  };
 
   const handleFormFieldChange = async (fieldName, e) => {
     if (fieldName == 'image') {
       setForm({ ...form, [fieldName]: e })
-    }else{
+    } else {
       setForm({ ...form, [fieldName]: e.target.value })
-    }    
+    }
   }
 
   //ADD ZONE === START
@@ -71,9 +74,9 @@ const CreateConcert = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setIsLoading(true);
+      form.category = selectedOptions;
       await createCampaign({ ...form });
       setIsLoading(false);
       navigate('/');
@@ -87,7 +90,7 @@ const CreateConcert = () => {
     <div className="bg-[#1c1c24] flex justify-center items-center flex-col rounded-[10px] sm:p-10 p-4">
       {isLoading && <Loader />}
       <div className="flex justify-center items-center p-[16px] sm:min-w-[380px] bg-[#3a3a43] rounded-[10px]">
-        <h1 className="font-epilogue font-bold sm:text-[25px] text-[18px] leading-[38px] text-white">Start a Campaign</h1>
+        <h1 className="font-epilogue font-bold sm:text-[25px] text-[18px] leading-[38px] text-white">Start a Concert</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="w-full mt-[65px] flex flex-col gap-[30px]">
@@ -181,6 +184,8 @@ const CreateConcert = () => {
           />
 
         </div> */}
+
+        <MultiSelect onSelectedOptionsChange={handleSelectedOptionsChange} />
 
         {/* UPLOAD IMAGE */}
         <FormField

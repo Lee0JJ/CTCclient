@@ -3,33 +3,31 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import { useStateContext } from '../context';
 import { money } from '../assets';
-import { CustomButton, FormField, Loader } from '../components';
-import { checkIfImage } from '../utils';
+import { CustomButton, FormField, Loader, MultiSelect } from '../components';
 
-//IPFS URL
-import { useStorageUpload } from '@thirdweb-dev/react';
-import { ThirdwebStorage } from '@thirdweb-dev/storage';
-
-import { tagType, thirdweb } from '../assets';
-import { daysLeft, calTotalAvailableTickets, calLowestTicketPrice } from '../utils';
 
 const EditConcert = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const { createCampaign, updateCampaign } = useStateContext();
+  const { updateCampaign } = useStateContext();
   const [form, setForm] = useState({
     concertId: state.cId,
     name: state.name,
-      date: new Date(state.date * 1000).toISOString().substring(0, 16),
-      venue: state.venue,
-      numZone: state.numZone,
-      zoneInfo: state.zoneInfo,
-      image: state.image,
-      description: state.description
-    });
+    date: new Date(state.date * 1000).toISOString().substring(0, 16),
+    venue: state.venue,
+    description: state.description,
+    numZone: state.numZone,
+    zoneInfo: state.zoneInfo,
+    image: state.image,
+    category: state.category,
+  });
 
+  const [selectedOptions, setSelectedOptions] = useState(state.category || []);
 
+  const handleSelectedOptionsChange = (newSelectedOptions) => {
+    setSelectedOptions(newSelectedOptions);
+  };
 
   //ZONE selection
   const [selectedZone, setSelectedZone] = useState(null);
@@ -42,10 +40,6 @@ const EditConcert = () => {
     console.log(zone);
     setSelectedZone(zone);
   };
-
-  //IPFS
-  const { mutateAsync: upload } = useStorageUpload();
-  const storage = new ThirdwebStorage();
 
 
   const handleFormFieldChange = async (fieldName, e) => {
@@ -97,6 +91,7 @@ const EditConcert = () => {
       setIsLoading(true);
       //set numZone = zoneInfo.length
       form.numZone = form.zoneInfo.length;
+      form.category = selectedOptions;
       await updateCampaign({ ...form });
       setIsLoading(false);
       navigate('/profile');
@@ -111,7 +106,7 @@ const EditConcert = () => {
     <div className="bg-[#1c1c24] flex justify-center items-center flex-col rounded-[10px] sm:p-10 p-4">
       {isLoading && <Loader />}
       <div className="flex justify-center items-center p-[16px] sm:min-w-[380px] bg-[#3a3a43] rounded-[10px]">
-        <h1 className="font-epilogue font-bold sm:text-[25px] text-[18px] leading-[38px] text-white">Start a Campaign</h1>
+        <h1 className="font-epilogue font-bold sm:text-[25px] text-[18px] leading-[38px] text-white">Edit Concert</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="w-full mt-[65px] flex flex-col gap-[30px]">
@@ -206,6 +201,8 @@ const EditConcert = () => {
           />
 
         </div> */}
+
+        <MultiSelect existed={state.category} onSelectedOptionsChange={handleSelectedOptionsChange} />
 
         {/* UPLOAD IMAGE */}
         <FormField

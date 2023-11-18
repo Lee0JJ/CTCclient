@@ -17,21 +17,21 @@ export const navlinks = [
     link: '/list-organizer',
     disabled: false,
   },
-  {
-    name: 'concertedit',
-    imgUrl: withdraw,
-    link: '/edit-concert',
-    disabled: false,
-  },
+  // {
+  //   name: 'concertedit',
+  //   imgUrl: withdraw,
+  //   link: '/edit-concert',
+  //   disabled: false,
+  // },
   {
     name: 'profile',
     imgUrl: profile,
     link: '/profile',
   },
-  {
-    name: 'logout',
-    imgUrl: logout,
-    link: '/',
-    disabled: false,
-  },
+  // {
+  //   name: 'logout',
+  //   imgUrl: logout,
+  //   link: '/',
+  //   disabled: false,
+  // },
 ];
