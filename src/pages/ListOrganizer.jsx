@@ -160,12 +160,15 @@ function TabContent({ tabName, organizers }) {
     const fetchImage = async (image) => {
         try {
             console.log("image", image);
-            const response = await fetch(image);
-            const data = await response.json();
-            if (data) {
-                //console.log("data", data);
-                //setImageURL(data);
-                console.log("imageURL", data);
+            if (image.length > 0) {
+                const response = await fetch(image);
+                const data = await response.json();
+                if (data && image.length > 0) {
+                    //console.log("data", data);
+                    //setImageURL(data);
+                    console.log("imageURL", data);
+                    setImageURL(Object.values(data));
+                }
                 setImageURL(Object.values(data));
             }
         } catch (error) {

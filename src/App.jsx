@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 
 import { Sidebar, Navbar } from './components';
 import { CampaignDetails, CreateCampaign, Home, Profile } from './pages';
-import { CreateConcert, ListOrganizer, EditConcert } from './pages';
+import { CreateConcert, ListOrganizer, EditConcert, UseTicket } from './pages';
 
 const App = () => {
 
@@ -19,6 +19,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/useticket" element={<UseTicket />} />
           <Route path="/create-concert" element={<CreateConcert />} />
           <Route path="/list-organizer" element={<ListOrganizer />} />
           <Route path="/edit-concert/:id" element={<EditConcert />} />

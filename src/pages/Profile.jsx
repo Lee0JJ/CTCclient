@@ -30,7 +30,7 @@ const Profile = () => {
 
   const determineUserStatus = async () => {
     const foundOrganizer = organizers.find((org) => org.account === address);
-    console.log("foundOrganizer", foundOrganizer);
+    console.log("foundOrganizer", foundOrganizer)
     if (foundOrganizer) {
       setOrganizer(foundOrganizer);
       if (foundOrganizer.isVerified) {

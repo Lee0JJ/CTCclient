@@ -5,3 +5,4 @@ export { default as CampaignDetails } from './CampaignDetails';
 export { default as CreateConcert } from './CreateConcert';
 export { default as ListOrganizer } from './ListOrganizer';
 export { default as EditConcert } from '../components/EditConcert';
+export { default as UseTicket } from './UseTicket';   

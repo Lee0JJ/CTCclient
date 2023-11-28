@@ -28,7 +28,7 @@ function convertDatetimeToUint256(inputValue) {
 }
 
 export const StateContextProvider = ({ children }) => {
-  const { contract } = useContract('0xb00A1cfBaad7f63323A7C18ADb3BfC966EF0d86b');
+  const { contract } = useContract('0x57a16bA9144b76FD2a87cad6C8B17BC8393e6F0F');
   const { mutateAsync: createConcert, isLoading } = useContractWrite(contract, "createConcert")
   const { mutateAsync: createOrganizer, isLoading2 } = useContractWrite(contract, "registerAsOrganizer")
 
@@ -51,6 +51,17 @@ export const StateContextProvider = ({ children }) => {
     return uploadUrl;
   };
   //IPFS URL === END
+
+  const checkServer = async () => {
+    try {
+      const response = await axios.get("http://localhost:8800");
+      console.log("Server Online");
+      return true;
+    } catch (error) {
+      console.error('Server Online');
+      return false;
+    }
+  }
 
   const publishCampaign = async (form) => {
     try {
@@ -408,7 +419,8 @@ export const StateContextProvider = ({ children }) => {
         getOrganizer,
         updateOrganizer,
         archiveOrganizer,
-        setOrganizerStatus
+        setOrganizerStatus,
+        checkServer
       }}
     >
       {children}
