@@ -17,6 +17,7 @@
     "axios": "^1.6.0",
     "client": "file:",
     "ethers": "^5.7.2",
+    "html5-qrcode": "^2.3.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.4.4"

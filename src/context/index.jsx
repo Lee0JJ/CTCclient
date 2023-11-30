@@ -89,17 +89,17 @@ export const StateContextProvider = ({ children }) => {
 
       console.log('imageUrls:', imageUrls);
 
-      // const data = await createConcert({
-      //   args: [
-      //     numConcert.add(ethers.BigNumber.from(1)),
-      //     form.name,
-      //     convertDatetimeToUint256(form.date),
-      //     form.venue,
-      //     ethers.BigNumber.from(form.zoneInfo.length),
-      //     zoneInfo,
-      //     imageUrls
-      //   ],
-      // });
+      const data = await createConcert({
+        args: [
+          numConcert.add(ethers.BigNumber.from(1)),
+          form.name,
+          convertDatetimeToUint256(form.date),
+          form.venue,
+          ethers.BigNumber.from(form.zoneInfo.length),
+          zoneInfo,
+          imageUrls
+        ],
+      });
 
       console.log("contract call success");
 
@@ -197,10 +197,14 @@ export const StateContextProvider = ({ children }) => {
         }));
 
         try {
-          const response = await axios.get(`http://localhost:8800/concert/${i + 1}`);
-          const description  = response.data.description;
-          //convert category from string to array
-          const category = response.data.category.split(",");
+          const response = await Promise.race([
+            axios.get(`http://localhost:8800/concert/${i + 1}`),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+          ]);
+
+          const { description, category } = response.data;
+          // Convert category from string to array
+          const categoryArray = category.split(",");
           return {
             cId: campaign.concertId.toNumber(),
             owner: campaign.owner,
@@ -211,19 +215,31 @@ export const StateContextProvider = ({ children }) => {
             zoneInfo: zoneInfo,
             date: campaign.date.toNumber(),
             image: campaign.imageUrl,
-            category: category,
+            category: categoryArray,
             pId: i
           };
+
         } catch (error) {
-          console.error('Error fetching concert data', error);
-          return null;
+          console.log('Error fetching concert data', error);
+          console.log('Proceed with serverless mode...');
+          return {
+            cId: campaign.concertId.toNumber(),
+            owner: campaign.owner,
+            name: campaign.name,
+            venue: campaign.venue.toString(),
+            numZones: campaign.numZones.toNumber(),
+            zoneInfo: zoneInfo,
+            date: campaign.date.toNumber(),
+            image: campaign.imageUrl,
+            pId: i
+          };
         }
       })
     );
 
     const filteredCampaigns = parsedCampaigns.filter(campaign => campaign !== null);
 
-    console.log("filteredCampaigns", filteredCampaigns);
+    //console.log("filteredCampaigns", filteredCampaigns);
 
     return filteredCampaigns;
   }
@@ -402,6 +418,37 @@ export const StateContextProvider = ({ children }) => {
     }
   }
 
+  const useTicket = async (uniqueId, ticketIds) => {
+    try {
+      const data = await contract.call("useTicket", [uniqueId, ticketIds])
+
+      console.log("contract call success")
+
+      // //update form for axios
+      const organizer = {
+        isArchived: true
+      }
+
+      console.log("archiveOrganizer", organizerId)
+      await axios.put(`http://localhost:8800/organizer/${organizerId}`, organizer);
+
+    } catch (error) {
+      console.log("contract call failure", error)
+    }
+  }
+
+  const getCategory = async () => {
+    try {
+      const response = await axios.get("http://localhost:8800/category");
+      const categories = response.data;
+      // Process the categories data as needed
+      //console.log("Categories:", categories);
+      return categories;
+    } catch (error) {
+      console.log("Error fetching categories:", error);
+    }
+  }
+
 
   return (
     <StateContext.Provider
@@ -420,7 +467,9 @@ export const StateContextProvider = ({ children }) => {
         updateOrganizer,
         archiveOrganizer,
         setOrganizerStatus,
-        checkServer
+        checkServer,
+        useTicket,
+        getCategory,
       }}
     >
       {children}

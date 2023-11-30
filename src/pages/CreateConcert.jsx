@@ -7,9 +7,6 @@ import { money } from '../assets';
 import { CustomButton, FormField, Loader, MultiSelect  } from '../components';
 import { checkIfImage } from '../utils';
 
-//IPFS URL
-import { useStorageUpload } from '@thirdweb-dev/react';
-import { ThirdwebStorage } from '@thirdweb-dev/storage';
 
 const CreateConcert = () => {
   const navigate = useNavigate();
