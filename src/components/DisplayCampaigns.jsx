@@ -53,12 +53,12 @@ const DisplayCampaigns = ({ title, isLoading, campaigns, editable }) => {
           </p>
         )}
 
-        <div className="w-full relative flex items-center overflow-x-auto">
-          <div id='slider' className='scroll whitespace-nowrap scroll-smooth'>
+        <div className="relative flex items-center overflow-x-auto">
+          <div id='slider' className='scroll  scroll-smooth'>
             {category?.map((item, index) => (
               <div key={index} className="inline-block mr-[10px]">
                 <button
-                  className={`w-full inline-flex items-center justify-center rounded-full py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 
+                  className={`inline-flex items-center justify-center rounded-full py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 
                   ${categoryIndex === index ? 'text-white bg-[#1dc071]' : ''}`}
                   onClick={() => setCategoryIndex(index)}
                 >

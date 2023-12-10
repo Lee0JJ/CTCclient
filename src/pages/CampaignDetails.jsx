@@ -10,7 +10,7 @@ import { thirdweb } from '../assets';
 const CampaignDetails = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { donate, getDonations, contract, address } = useStateContext();
+  const { donate, getDonations, getAllTicket, contract, address } = useStateContext();
 
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState('');
@@ -20,6 +20,8 @@ const CampaignDetails = () => {
 
   const [images, setImages] = useState([]);
 
+  const [tickets, setTickets] = useState([]);
+
   useEffect(() => {
     async function fetchImages() {
       setImages(await directoryToJSON(state.image));
@@ -28,14 +30,13 @@ const CampaignDetails = () => {
   }, [state.image]);
 
 
-  const fetchDonators = async () => {
-    //const data = await getDonations(state.pId);
-
-    //setDonators(data);
+  const fetchTickets = async () => {
+    const data = await getAllTicket();
+    setTickets(data.fliter((item) => item.campaignId === state.pId));
   }
 
   useEffect(() => {
-    if (contract) fetchDonators();
+    if (contract) fetchTickets();
   }, [contract, address])
 
   const handleDonate = async () => {
@@ -55,6 +56,8 @@ const CampaignDetails = () => {
     console.log(state.zoneInfo[0][0]);
     setSelectedZone(zone);
   };
+
+  console.log("state", state);
 
   return (
     <div>
@@ -104,10 +107,10 @@ const CampaignDetails = () => {
             <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">Purchase History</h4>
 
             <div className="mt-[20px] flex flex-col gap-4">
-              {donators.length > 0 ? donators.map((item, index) => (
-                <div key={`${item.donator}-${index}`} className="flex justify-between items-center gap-4">
-                  <p className="font-epilogue font-normal text-[16px] text-[#b2b3bd] leading-[26px] break-ll">{index + 1}. {item.donator}</p>
-                  <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] break-ll">{item.donation}</p>
+              {tickets.length > 0 ? tickets.map((item, index) => (
+                <div key={`${item.customerid}-${index}`} className="flex justify-between items-center gap-4">
+                  <p className="font-epilogue font-normal text-[16px] text-[#b2b3bd] leading-[26px] break-ll">{index + 1}. {item.docustomeridnator}</p>
+                  <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] break-ll">{item.receipt}</p>
                 </div>
               )) : (
                 <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] text-justify">No purchase yet. Be the first one!</p>
@@ -116,7 +119,7 @@ const CampaignDetails = () => {
           </div>
         </div>
 
-        <div className="flex-1">
+        <div className="">
           <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">ZONE</h4>
 
           {/* ZONE SELECTION */}
@@ -141,7 +144,7 @@ const CampaignDetails = () => {
           </div>
           {/* ZONE SELECTION */}
 
-          <div className="mt-[20px] flex flex-col p-4 bg-[#1c1c24] rounded-[10px]">
+          {/* <div className="mt-[20px] flex flex-col p-4 bg-[#1c1c24] rounded-[10px]">
             <p className="font-epilogue fount-medium text-[20px] leading-[30px] text-center text-[#808191]">
               Fund the campaign
             </p>
@@ -154,11 +157,6 @@ const CampaignDetails = () => {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
               />
-
-              {/* some spacing using tailwind */}
-              <div className="my-[5px] p-1 rounded-[10px]">
-
-              </div>
 
               <input
                 type="number"
@@ -181,7 +179,7 @@ const CampaignDetails = () => {
                 handleClick={handleDonate}
               />
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

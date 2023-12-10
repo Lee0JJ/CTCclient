@@ -42,7 +42,6 @@ const Profile = () => {
       }
     } else {
       setUserStatus("New User");
-      await fetchOrganizers();
     }
     console.log("userStatus", userStatus);
   }
@@ -51,6 +50,7 @@ const Profile = () => {
     if (contract) {
       fetchCampaigns();
       fetchOrganizers();
+      determineUserStatus();
     }
   }, [contract, address]);
 

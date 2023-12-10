@@ -28,7 +28,7 @@ function convertDatetimeToUint256(inputValue) {
 }
 
 export const StateContextProvider = ({ children }) => {
-  const { contract } = useContract('0x57a16bA9144b76FD2a87cad6C8B17BC8393e6F0F');
+  const { contract } = useContract('0xa04Cad5b3e5FaE44c4aECF2abDbDE5adCc994043');
   const { mutateAsync: createConcert, isLoading } = useContractWrite(contract, "createConcert")
   const { mutateAsync: createOrganizer, isLoading2 } = useContractWrite(contract, "registerAsOrganizer")
 
@@ -185,7 +185,6 @@ export const StateContextProvider = ({ children }) => {
     }
   }
 
-
   const getCampaigns = async () => {
     const campaigns = await contract.call('getConcerts');
 
@@ -340,7 +339,6 @@ export const StateContextProvider = ({ children }) => {
     return parsedOrganizer;
   }
 
-
   const updateOrganizer = async (form) => {
     console.log("updateOrganizer", form)
 
@@ -449,6 +447,23 @@ export const StateContextProvider = ({ children }) => {
     }
   }
 
+  const getAdmin = async () => {
+    try {
+      const admin = await contract.call('admin');
+      console.log("admin", admin);
+      return admin;
+    } catch (error) {
+      console.log("admin call failure", error);
+    }
+  }
+
+  const getAllTicket = async () => {
+    //get all tickets from axios
+    const response = await axios.get("http://localhost:8800/ticket");
+    const tickets = response.data;
+    //console.log("tickets", tickets);
+    return tickets;
+  }
 
   return (
     <StateContext.Provider
@@ -470,6 +485,8 @@ export const StateContextProvider = ({ children }) => {
         checkServer,
         useTicket,
         getCategory,
+        getAdmin,
+        getAllTicket,
       }}
     >
       {children}

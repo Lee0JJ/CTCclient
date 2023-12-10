@@ -4,24 +4,67 @@ import { ethers } from 'ethers';
 
 import { useStateContext } from '../context';
 import { money } from '../assets';
-import { CustomButton, FormField, Loader, MultiSelect  } from '../components';
+import { CustomButton, FormField, Loader, MultiSelect } from '../components';
 import { checkIfImage } from '../utils';
 
 
 const CreateConcert = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const { createCampaign } = useStateContext();
+  const { address, contract, getUserCampaigns, getOrganizer, createCampaign } = useStateContext();
   const [form, setForm] = useState({
-    name: 'Concert 1',
-    date: '2023-09-09T15:30:45',
-    venue: 'Venue 1',
+    name: '',
+    date: '',
+    venue: '',
     numZone: 1,
     zoneInfo: [{ price: 1, seatAmount: 1 }],
     image: [],
-    description: 'a',
+    description: '',
     category: [],
   });
+
+  const [campaigns, setCampaigns] = useState([]);
+  const [organizers, setOrganizers] = useState([]);
+  const [organizer, setOrganizer] = useState(null);
+  const [userStatus, setUserStatus] = useState(null);
+
+  const fetchCampaigns = async () => {
+    setIsLoading(true);
+    const data = await getUserCampaigns();
+    setCampaigns(data);
+    setIsLoading(false);
+  }
+
+  const fetchOrganizers = async () => {
+    setIsLoading(true);
+    const data = await getOrganizer();
+    setOrganizers(data);
+    setIsLoading(false);
+  }
+
+  const determineUserStatus = async () => {
+    const foundOrganizer = organizers.find((org) => org.account === address);
+    console.log("foundOrganizer", foundOrganizer)
+    if (foundOrganizer.length == 0) {
+      navigate('/profile');
+    }
+  }
+
+  useEffect(() => {
+    if (contract) {
+      fetchCampaigns();
+      fetchOrganizers();
+      determineUserStatus();
+    }
+  }, [contract, address]);
+
+
+  useEffect(() => {
+    if (organizers.length > 0) {
+      determineUserStatus();
+    }
+    console.log("camplaings", campaigns);
+  }, [organizers]);
 
   const [selectedOptions, setSelectedOptions] = useState([]);
 
