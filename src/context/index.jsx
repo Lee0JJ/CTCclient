@@ -465,6 +465,12 @@ export const StateContextProvider = ({ children }) => {
     return tickets;
   }
 
+  const getTicketSold = async () => {
+    const events = await contract.events.getEvents("TicketPurchased")
+    //console.log("events", events);
+    return events;
+  }
+
   return (
     <StateContext.Provider
       value={{
@@ -487,6 +493,7 @@ export const StateContextProvider = ({ children }) => {
         getCategory,
         getAdmin,
         getAllTicket,
+        getTicketSold,
       }}
     >
       {children}

@@ -10,11 +10,11 @@ import { thirdweb } from '../assets';
 const CampaignDetails = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { donate, getDonations, getAllTicket, contract, address } = useStateContext();
+  const { donate, getDonations, getAllTicket, getTicketSold, contract, address } = useStateContext();
 
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState('');
-  const [donators, setDonators] = useState([]);
+  const [ticketSold, setTicketSold] = useState([]);
 
   const remainingDays = daysLeft(state.date);
 
@@ -32,7 +32,10 @@ const CampaignDetails = () => {
 
   const fetchTickets = async () => {
     const data = await getAllTicket();
-    setTickets(data.fliter((item) => item.campaignId === state.pId));
+    const dataSold = await getTicketSold();
+    //setTicketSold(dataSold.fliter((item) => item.campaignId === state.pId));
+    setTicketSold(dataSold);
+    //setTickets(data ? data.fliter((item) => item.campaignId === state.pId) : []);
   }
 
   useEffect(() => {
@@ -53,11 +56,12 @@ const CampaignDetails = () => {
 
   // Handle zone selection
   const handleZoneSelection = (zone) => {
-    console.log(state.zoneInfo[0][0]);
+    //console.log(state.zoneInfo[0][0]);
     setSelectedZone(zone);
   };
 
-  console.log("state", state);
+  //console.log("state", state);
+  console.log(ticketSold)
 
   return (
     <div>
@@ -107,13 +111,13 @@ const CampaignDetails = () => {
             <h4 className="font-epilogue font-semibold text-[18px] text-white uppercase">Purchase History</h4>
 
             <div className="mt-[20px] flex flex-col gap-4">
-              {tickets.length > 0 ? tickets.map((item, index) => (
-                <div key={`${item.customerid}-${index}`} className="flex justify-between items-center gap-4">
-                  <p className="font-epilogue font-normal text-[16px] text-[#b2b3bd] leading-[26px] break-ll">{index + 1}. {item.docustomeridnator}</p>
-                  <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] break-ll">{item.receipt}</p>
+              {ticketSold.length > 0 ? ticketSold.map((item, index) => (
+                <div key={`${item.data.customerid}-${index}`} className="flex justify-between items-center gap-4">
+                  <p className="font-epilogue font-normal text-[16px] text-[#b2b3bd] leading-[26px] break-ll">{index + 1}. {item.data.owner}</p>
+                  <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] break-ll">{new Date(item.data.time * 1000).toLocaleDateString()}</p>
                 </div>
               )) : (
-                <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] text-justify">No purchase yet. Be the first one!</p>
+                <p className="font-epilogue font-normal text-[16px] text-[#808191] leading-[26px] text-justify">No purchase yet.</p>
               )}
             </div>
           </div>
@@ -138,9 +142,9 @@ const CampaignDetails = () => {
                 </button>
               ))}
             </div>
-            {selectedZone && (
+            {/* {selectedZone && (
               <p>You have selected Zone {selectedZone[0]} with {selectedZone[1]} available seats.</p>
-            )}
+            )} */}
           </div>
           {/* ZONE SELECTION */}
 

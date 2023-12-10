@@ -58,7 +58,7 @@ export const calTotalTickets = (zoneInfo) => {
     for (let i = 0; i < zoneInfo.length; i++) {
       if (zoneInfo[i] && zoneInfo[i].seatAmount > 0) {
         totalTickets += Number(zoneInfo[i].seatAmount);
-        console.log(zoneInfo[i].seatAmount);
+        //console.log(zoneInfo[i].seatAmount);
       }
     }
   } catch (error) {
@@ -85,7 +85,7 @@ export const directoryToJSON = async (image) => {
     const json = await response.json();
     images = json;
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 
   return images
