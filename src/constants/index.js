@@ -17,12 +17,12 @@ export const navlinks = [
     link: '/list-organizer',
     disabled: false,
   },
-  // {
-  //   name: 'concertedit',
-  //   imgUrl: withdraw,
-  //   link: '/edit-concert',
-  //   disabled: false,
-  // },
+  {
+    name: 'useticket',
+    imgUrl: withdraw,
+    link: '/useticket',
+    disabled: false,
+  },
   {
     name: 'profile',
     imgUrl: profile,

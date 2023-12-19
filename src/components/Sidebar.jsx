@@ -25,8 +25,11 @@ const Sidebar = () => {
   const { contract, address, getAdmin } = useStateContext();
 
   const [admin, setAdmin] = useState('');
-  let access = [];
-  const clientAccess = ['dashboard', 'profile', 'concertcreate'];
+
+  const clientAccess = ['dashboard', 'profile'];
+  const organizerAccess = ['dashboard', 'concertcreate', 'profile','useticket'];
+
+  const [access, setAccess] = useState([]);
 
   useEffect(() => {
     const fetchAdmin = async () => {
@@ -40,6 +43,59 @@ const Sidebar = () => {
       // Clean-up code here (if needed)
     };
   }, [address, contract]);
+
+  const { getOrganizer } = useStateContext();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [campaigns, setCampaigns] = useState([]);
+  const [organizers, setOrganizers] = useState([]);
+  //const [organizer, setOrganizer] = useState(null);
+  const [userStatus, setUserStatus] = useState(null);
+
+  const fetchOrganizers = async () => {
+    setIsLoading(true);
+    const data = await getOrganizer();
+    setOrganizers(data);
+    setIsLoading(false);
+  }
+
+  const determineUserStatus = async () => {
+    if (admin == address) {
+      setUserStatus("Admin");
+    }
+    else {
+      const foundOrganizer = organizers.find((org) => org.account === address);
+      console.log("foundOrganizer", foundOrganizer)
+      if (foundOrganizer) {
+        //setOrganizer(foundOrganizer);
+        if (foundOrganizer.isVerified) {
+          setAccess(organizerAccess);
+        } else if (!foundOrganizer.isVerified && !foundOrganizer.isArchived) {
+          setAccess(clientAccess);
+        } else if (foundOrganizer.isArchived) {
+          setAccess(clientAccess);
+        }
+      } else {
+        setAccess(clientAccess);
+      }
+    }
+    console.log("userStatus", userStatus);
+  }
+
+  useEffect(() => {
+    if (contract) {
+      fetchOrganizers();
+      determineUserStatus();
+    }
+  }, [contract, address]);
+
+
+  useEffect(() => {
+    if (organizers.length > 0) {
+      determineUserStatus();
+    }
+    console.log("camplaings", campaigns);
+  }, [organizers]);
 
   //Color Mode
   const [colorMode, setColorMode] = useColorMode();
