@@ -5,7 +5,7 @@ import { useStateContext } from '../context'
 import { SignUp } from '../pages/sign-up';
 
 
-const Profile = () => {
+const Profile = ({searchWord}) => {
   const { address, contract, getUserCampaigns, getOrganizer } = useStateContext();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -76,6 +76,7 @@ const Profile = () => {
     ) : userStatus === "Organizer" ? (
       <DisplayCampaigns
         title="Your Campaigns"
+        searchWord={searchWord}
         isLoading={isLoading}
         campaigns={campaigns}
         editable={true}

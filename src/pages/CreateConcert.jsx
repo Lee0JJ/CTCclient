@@ -240,7 +240,7 @@ const CreateConcert = () => {
         <div className="flex justify-center items-center mt-[40px]">
           <CustomButton
             btnType="submit"
-            title="Submit new campaign"
+            title="Create New Concert"
             styles="bg-[#1dc071]"
           />
         </div>

@@ -5,7 +5,7 @@ import FundCard from './FundCard';
 import { loader } from '../assets';
 import { useStateContext } from '../context';
 
-const DisplayCampaigns = ({ title, isLoading, campaigns, editable }) => {
+const DisplayCampaigns = ({ title, isLoading, campaigns, editable, searchWord }) => {
   const navigate = useNavigate();
   const { getCategory } = useStateContext();
 
@@ -32,11 +32,11 @@ const DisplayCampaigns = ({ title, isLoading, campaigns, editable }) => {
 
   useEffect(() => {
     const filteredConcert = categoryIndex === 0
-      ? campaigns
-      : campaigns.filter(campaign => campaign.category.includes(category[categoryIndex]?.categoryname));
+      ? campaigns.filter(campaign => campaign.name.toLowerCase().includes(searchWord?.toLowerCase()))
+      : campaigns.filter(campaign => campaign.category.includes(category[categoryIndex]?.categoryname) && campaign.name.toLowerCase().includes(searchWord?.toLowerCase()));
     setFilteredCampaigns(filteredConcert);
     console.log(filteredConcert);
-  }, [categoryIndex, category, campaigns]);
+  }, [categoryIndex, category, campaigns, searchWord]);
 
   return (
     <div>

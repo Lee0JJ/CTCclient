@@ -422,16 +422,8 @@ export const StateContextProvider = ({ children }) => {
 
       console.log("contract call success")
 
-      // //update form for axios
-      const organizer = {
-        isArchived: true
-      }
-
-      console.log("archiveOrganizer", organizerId)
-      await axios.put(`http://localhost:8800/organizer/${organizerId}`, organizer);
-
     } catch (error) {
-      console.log("contract call failure", error)
+      throw(error)
     }
   }
 

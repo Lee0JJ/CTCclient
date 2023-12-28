@@ -47,19 +47,23 @@ const UseTicket = () => {
 
     const handleUsing = async (ticket) => {
         setIsLoading(true);
-        const availableTickets = ticket.filter(t => !t.used);
-        console.log("User Concert", userConcert.some(concert => concert.concertId === ticket.concertId));
-        console.log("Available Tickets", availableTickets.length);
-
-        if (availableTickets.length !== 0 && Boolean(userConcert.some(concert => concert.concertId === ticket.concertId))) {
-            const ticketIds = availableTickets.map(t => t.ticketId);
-            console.log(ticket[0].owner, ticketIds);
+        try {
+            const availableTickets = ticket.filter(t => !t.used);
             console.log("User Concert", userConcert.some(concert => concert.concertId === ticket.concertId));
-            await useTicket(ticket[0].owner, ticketIds);
-        } else {
-            alert("Error occurred, might be\n1. All tickets are used\n2. Invalid QR code\n3. Invalid Client Account Please try again");
-        }
+            console.log("Available Tickets", availableTickets.length);
 
+            if (availableTickets.length !== 0 && Boolean(userConcert.some(concert => concert.concertId === ticket.concertId))) {
+                const ticketIds = availableTickets.map(t => t.ticketId);
+                console.log(ticket[0].owner, ticketIds);
+                console.log("User Concert", userConcert.some(concert => concert.concertId === ticket.concertId));
+                await useTicket(ticket[0].owner, ticketIds);
+                window.location.reload();
+            } else {
+                alert("Error occurred, might be\n1. All tickets are used\n2. Invalid QR code\n3. Invalid Client Account Please try again");
+            }
+        } catch (error) {
+            alert(error.message);
+        }
         // navigate('/')
         setIsLoading(false);
     }
@@ -133,7 +137,7 @@ const UseTicket = () => {
                                                             {item.ticketId}
                                                         </div>
                                                         <div className="text-sm text-gray-500">
-                                                            Time Purchased : {"\n"} {new Date(item.time).toLocaleString()}
+                                                            Time Purchased : {"\n"} {new Date(item.time * 1000).toLocaleString()}
                                                         </div>
                                                     </div>
                                                 </div>

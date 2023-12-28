@@ -4,7 +4,7 @@ import { tagType, thirdweb } from '../assets';
 import { daysLeft, calTotalAvailableTickets, calLowestTicketPrice, directoryToJSON } from '../utils';
 
 //const FundCard = ({ owner, title, description, target, deadline, amountCollected, image, handleClick }) => {
-const FundCard = ({ cId, owner, name, venue, numZones, zoneInfo, date, image, handleClick }) => {
+const FundCard = ({ cId, owner, name, venue, numZones, category, zoneInfo, date, image, handleClick }) => {
   const remainingDays = daysLeft(date);
 
   const [images, setImages] = useState([]);
@@ -23,7 +23,7 @@ const FundCard = ({ cId, owner, name, venue, numZones, zoneInfo, date, image, ha
       <div className="flex flex-col p-4">
         <div className="flex flex-row items-center mb-[18px]">
           <img src={tagType} alt="tag" className="w-[17px] h-[17px] object-contain" />
-          <p className="ml-[12px] mt-[2px] font-epilogue font-medium text-[12px] text-[#808191]">Education</p>
+          <p className="ml-[12px] mt-[2px] font-epilogue font-medium text-[12px] text-[#808191]">{category ? category.join(", ") : ""}</p>
         </div>
 
         <div className="block">
